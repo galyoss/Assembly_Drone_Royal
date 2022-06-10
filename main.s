@@ -2,7 +2,12 @@
 ;; init target
 ;;
 
-
+;;TODO SATURDAY:
+    ; finish random functions (move drone, calc angle, calc angle delta...)
+    ; decide on CORS structs
+    ; parse input
+    ;  gal maybe geh -> maybe debug prints
+    ; if god helps us work fast DO SCHEDUeler
 
 ; מי שמאמין לא מתעד
 %macro func_start 0
@@ -25,6 +30,10 @@ section .rodata:
     BIT_MASK_14: equ 4
     BIT_MASK_13: equ 8
     BIT_MASK_11: equ 32
+    MAX_SEED: equ 65535
+    MAX_ANGLE_DELTA_LIM: equ 60
+    MIN_ANGLE_DELTA_LIM: equ -60
+    BOARD_SIZE: equ 100
 
 section .data:
     ;; init all "board" related vars: dronesArray, game params, target
@@ -39,26 +48,94 @@ section .data:
     currAngleRad: dq 0
     Gamma: dq 0
     varA: dq 0
+    varB: dq 0
     cors: dd 0
+    seed: dw 0
 
 section .text:
 
 ;; should get lower, upper bound, return a random between them
 generate_random_number:
-    startFun                                               ; of random number
+    func_start                                               ; of random number
     pushad
+    xor eax, eax
+    xor ebx, ebx
     xor ecx,ecx
-    mov ecx, 16
+    mov ax, word[seed]
     calc_random:
         cmp ecx, 16
         je end_calc_random
+        mov bx, BIT_MASK_16
+        and bx, ax
+        shl bx, 2
+        mov dx, BIT_MASK_14
+        and dx, ax
+        xor bx, dx          ; now bx holds the result of 14bit xor 16bit in the 14th bit
         
+        shl bx, 1
+        mov dx, BIT_MASK_13
+        and dx, ax
+        xor bx, dx         ; now bx holds the result of 16bit xor 14bit xor 13bit in the 13th bit  
+
+        shl bx, 2
+        mov dx, BIT_MASK_11
+        and dx, ax
+        xor bx, dx         ; now bx holds the result of 16bit xor 14bit xor 13bit xor 11bit in the 11th bit
+
+        shl bx, 10
+        shr ax, 1           ;ax first bit is now 0
+        or ax, bx           ;ax first bit is the xors result
+
+        inc ecx
         jmp calc_random
     end_calc_random:
+     
+    mov word[seed], ax      ;seed is now the new random number
+    func_end
+
+
+get_random_scaled_number: ;(int limit) -> VarA = scaled float
+    func_start
+    
+    call generate_random_number     ;now ax and seed hold random short
+
+    ffree
+    mov dword[varA], 0                   ; clean varA
+    mov word[varA], ax              ; varA = random short
+    fld dword[varA]                 ; push varA
+
+    mov dword[varB], MAX_SEED
+    fdiv dword[varB]                 ;now float stack top is a number (0,1];
+
+    mov eax, dword[ebp+8]              ;eax holds limit
+    mov dword [VarB], eax
+    fimul dword[VarB]                ;now top of stack is the random dist
+
+    mov dword[varA], 0
+    fstp dword[varA]                 ;VarA now holds the position
+    func_end
+
+
+place_target:
+    func_start
+    push BOARD_SIZE
+    call get_random_scaled_number
+    ; target.xPOS = VarA
+    call get_random_scaled_number
+    ; target.yPOS = VarA
+    add esp, 4
+    func_end
+
+
+
+scale_to_angle:
+    func_start
+
+    func_end
 
 
 convert_deg_to_rad:
-    startFun
+    func_start
     finit 
     fld qword [currAngleDeg]
     mov [varA], dword 0 ; TODO maybe delete?
@@ -68,11 +145,11 @@ convert_deg_to_rad:
     fldpi
     fmul
     fstp qword [currAngleRad]
-    endFun
+    func_end
     
 ; specific to gamma
 convert_rad_to_deg:
-    startFun
+    func_start
     finit 
     fld qword [Gamma]
     fldpi
@@ -82,7 +159,7 @@ convert_rad_to_deg:
     fild dword [varA]
     fmul
     fstp qword [Gamma]
-    endFun
+    func_end
 
 initDronesArray:
     ;; calloc array, with N cells each 4bytes
