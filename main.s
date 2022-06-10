@@ -21,6 +21,10 @@
 section .rodata:
     DroneStructLen: equ 33 ; 8xpox, 8ypos, 8angle, 8speed, 1isActive
     CO_STK_SIZE: equ 16384 ; 16*1024
+    BIT_MASK_16: equ 1
+    BIT_MASK_14: equ 4
+    BIT_MASK_13: equ 8
+    BIT_MASK_11: equ 32
 
 section .data:
     ;; init all "board" related vars: dronesArray, game params, target
@@ -38,8 +42,19 @@ section .data:
     cors: dd 0
 
 section .text:
-    generate_random_number:
-    ;; should get lower, upper bound, return a random between them
+
+;; should get lower, upper bound, return a random between them
+generate_random_number:
+    startFun                                               ; of random number
+    pushad
+    xor ecx,ecx
+    mov ecx, 16
+    calc_random:
+        cmp ecx, 16
+        je end_calc_random
+        
+        jmp calc_random
+    end_calc_random:
 
 
 convert_deg_to_rad:
@@ -151,8 +166,6 @@ init_co_routines:
     jmp drones_cors_init_loop
 
 
-    
-
-
 init_drone_sturct:
+
     
