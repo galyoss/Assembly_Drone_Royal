@@ -15,6 +15,26 @@
     mov ebp, esp
 %endmacro
 
+%macro print_debug_rnd_num 0
+    cmp Debug, 1
+    jne end_debug_print
+    push rnd_num_format
+    push [seed]
+    call printf
+    add esp, 4
+    %%end_debug_print:
+%endmacro
+
+%macro print_debug_scaled_rnd 0
+    cmp Debug, 1
+    jne end_debug_print
+    push scaled_rnd_format
+    push [VarA]
+    push [ebp+8]
+    call printf
+    add esp, 8
+%endmacro
+
 ; מי שמאמין לא מתעד
 %macro func_end 0
     mov esp, ebp
@@ -44,6 +64,7 @@ section .data:
     R : dd 0
     T : dd 0
     DronesArrayPointer: dd 0
+    target_pointer: dd 0
     currAngleDeg: dq 0
     currAngleRad: dq 0
     Gamma: dq 0
@@ -89,6 +110,7 @@ generate_random_number:
         inc ecx
         jmp calc_random
     end_calc_random:
+    print_debug_rnd_num
      
     mov word[seed], ax      ;seed is now the new random number
     func_end
@@ -113,6 +135,7 @@ get_random_scaled_number: ;(int limit) -> VarA = scaled float
 
     mov dword[varA], 0
     fstp dword[varA]                 ;VarA now holds the position
+    print_debug_scaled_rnd
     func_end
 
 
@@ -124,13 +147,7 @@ place_target:
     call get_random_scaled_number
     ; target.yPOS = VarA
     add esp, 4
-    func_end
-
-
-
-scale_to_angle:
-    func_start
-
+    print_debug_target_place [target_pointer+xposOffset] [target_pointer+yposOffset]
     func_end
 
 
@@ -160,6 +177,12 @@ convert_rad_to_deg:
     fmul
     fstp qword [Gamma]
     func_end
+
+calc_delta_x:
+    
+
+calc_delta_y:
+
 
 initDronesArray:
     ;; calloc array, with N cells each 4bytes
