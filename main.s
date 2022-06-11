@@ -9,6 +9,11 @@
     ;  gal maybe geh -> maybe debug prints
     ; if god helps us work fast DO SCHEDUELER
 
+;;TODO NEXT TIME ON DRAGON BALL Z:
+    ; resume + do resume
+    ; drone functionality: may destroy, move
+    ;print pasha is geh with cors
+
 ; מי שמאמין לא מתעד
 %macro func_start 0
     push ebp
@@ -44,16 +49,19 @@
 
 
 section .rodata:
-    DroneStructLen: equ 33 ; 8xpox, 8ypos, 8angle, 8speed, 1isActive
+    DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
     DRONE_STRUCT_XPOS_OFFSET: equ 0
     DRONE_STRUCT_YPOS_OFFSET: equ 8
     DRONE_STRUCT_HEADING_OFFSET: equ 16
     DRONE_STRUCT_SPEED_OFFSET: equ 24
-    DRONE_STRUCT_ACTIVE: equ 32
+    DRONE_STRUCT_KILLS_OFFSET: equ 32
+    DRONE_STRUCT_ACTIVE_OFFSET: equ 36
+    DRONE_STRUCT_KILLS:
     TARGET_STRUCT_SIZE: equ 17
     TARGET_STRUCT_XPOS_OFFSET: equ 0
     TARGET_STRUCT_YPOS_OFFSET: equ 8
     TARGET_STRUCT_IS_DESTROYED_OFFSET: equ 16
+
     CO_STK_SIZE: equ 16384 ; 16*1024
     BIT_MASK_16: equ 1
     BIT_MASK_14: equ 4
@@ -72,7 +80,7 @@ section .data:
     
     N : dd 0
     R : dd 0
-    T : dd 0
+    T : dd 0_eliminate
     DronesArrayPointer: dd 0
     target_pointer: dd 0
     currAngleDeg: dq 0
@@ -146,20 +154,6 @@ get_random_scaled_number: ;(int limit) -> VarA = scaled float
     mov dword[varA], 0
     fstp dword[varA]                 ;VarA now holds the position
     print_debug_scaled_rnd
-    func_end
-
-
-place_target:
-    func_start
-    pushad
-    push BOARD_SIZE
-    call get_random_scaled_number
-    ; target.xPOS = VarA
-    call get_random_scaled_number
-    ; target.yPOS = VarA
-    add esp, 4
-    popad
-    print_debug_target_place [target_pointer+xposOffset] [target_pointer+yposOffset]
     func_end
 
 generate_random_deg: ; initial degree, 0-360
@@ -306,7 +300,8 @@ init_drone_sturct:
     mov qword [ebx+DRONE_STRUCT_HEADING_OFFSET], [VarA]
     call generate_random_speed
     mov qword [ebx+DRONE_STRUCT_SPEED_OFFSET], [VarA]
-    mov byte [ebx+DRONE_STRUCT_ACTIVE], 1
+    mov dword [ebx+DRONE_STRUCT_KILLS_OFFSET], 0
+    mov byte [ebx+DRONE_STRUCT_ACTIVE_OFFSET], 1
     func_end
 
 init_target:
@@ -332,9 +327,43 @@ create_target:
 
 move_target:
     func_start
-    call generate_random_delta_xy
-    call wrap_new_position
+    call generate_random_delta_xy       ;now var A hold delta x 
+    ffree
 
+    ;moving x location
+    fld [varA]
+    fadd [target_pointer+TARGET_STRUCT_XPOS_OFFSET]
+    fstp [VarA]
+    push [MAX_POS]                      ; pushing board limits
+    call wrap_new_position              ; now var A hold wrap x
+    mov qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET], [VarA]    ;TODO see if this works
+
+    ;moving y location
+    fld [varA]
+    fadd [target_pointer+TARGET_STRUCT_YPOS_OFFSET]
+    fstp [VarA]
+    push [MAX_POS]                      ; pushing board limits
+    call wrap_new_position              ; now var A hold wrap y
+    mov qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET], [VarA]    ;TODO see if this works
+
+    func_end
+
+update_drone_deg: ;(drone * ) -> null, update drone deg
+    func_start
+    call generate_random_delta_deg  ;now VarA hold delta deg
+    mov ebx, [ebp+8]                ;ebx = drone *
+    ffree
+    
+    ;changing deg
+    fld [varA]
+    fadd [ebx + DRONE_STRUCT_HEADING_OFFSET]
+    fstp [VarA]
+    push [MAX_DEGREE]                      ; pushing board limits
+    call wrap_new_position              ; now var A hold wrap x
+    mov qword [ebx + DRONE_STRUCT_HEADING_OFFSET], [VarA]    ;TODO see if this works
+
+    func_end
+target_pointer+TARGET_STRUCT_XPOS_OFFSET
 
 wrap_new_position:
     ; func (limit): if varA >= limit, set varA = varA-limit. if varA < 0, set varA = varA + limit.
