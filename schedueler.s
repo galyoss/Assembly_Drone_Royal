@@ -38,7 +38,7 @@ section .text
     ; d<float> – maximum distance that allows to destroy a target (at most 20)
     ; seed<int> - seed for initialization of LFSR shift register 
 
-scheduelr_cor:
+run_schedueler:
     func_start
     mov dword[curr_step], 0
     mov ebx, dword[N]
@@ -63,6 +63,7 @@ scheduelr_cor:
 
         _check_drone_alive:
         modulu dword[curr_step], dword[N]    ;now edx hold curr_step%R
+        mov dword[curr_drone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
         add ebx, dword[edx * 4]          ;now ebx points to curr drone
         cmp [ebx + DRONE_STRUCT_ACTIVE], 1
