@@ -96,7 +96,7 @@ scheduelr_cor:
 
                 dec [num_of_drones_left]
                 cmp [num_of_drones_left], 1
-                ;TODO JUMP EQUALS END GAME
+                ;TODO JUMP EQUALS END GAME (print board, return to main, free all cors)
                 inc [drones_eliminated_this_round]
                 cmp [drones_eliminated_this_round], 1
                 je _eliminate
@@ -104,15 +104,24 @@ scheduelr_cor:
 
             jmp _check_print
         _print_board:
-
-            jmp _check_move_target
+            mov ebx, dword[cors+16]         ; move pointer of printer coroutine to ebx
+            call resume                     ; resume printer
+            jmp _check_move_target          ; board was printed
         _move_target:
-
-            jmp _check_drone_alive
+            mov ebx, dword[cors+8]          ; move target of printer coroutine to ebx
+            call resume                     ; resume target
+            jmp _check_drone_alive          ; target was moved
         _call_drone_cor:
-
+            ;edx holds i%N
+            add edx, 3                      ;   drones corourtines start at index 3
+            mov ebx, [cors + edx*8]         ; size of cors struct is 8, now ebx holds pointer to curr drone coroutine
+            call resume                     ; resume curr drone
         _loop_end:
+            inc [curr_step]                 ; i++
+            jmp _loop
 
 func_end
+
+;TODO -> check if func start and func end are needed here, because resume and do resume take care of same things i think
 
 
