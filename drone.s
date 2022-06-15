@@ -25,9 +25,6 @@
 section	.rodata
 
 section .data
-    curr_step: dd 0
-    num_of_drones_left: dd 0
-    drones_eliminated_this_round: dd 0
 
 section .bss
     
