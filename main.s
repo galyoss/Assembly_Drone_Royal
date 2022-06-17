@@ -1,6 +1,5 @@
 ;; init drone locations
 ;; init target
-;;
 
 ;;TODO SATURDAY:
     ; finish random functions (move drone, calc angle, calc angle delta...)
@@ -80,6 +79,7 @@ section .data:
     extern calloc
     extern run_printer
     extern run_target
+    extern run_drone
     extern run_schedueler
     global resume
     global do_resume
@@ -451,14 +451,15 @@ wrap:
     fisub dword [varB]
     skip_subtruct_limit:
     ; now [floating stack head (our varA)] is < limit, now we need to check if it's negative and fix
-    ficom 0
+    fldz
+    fcomip
     jae skip_add_limit
     mov dword [varB], [ebp+8]
     fld qword [varB]
     fadd
     skip_add_limit:
     ; now the number is normalized, return it to varA
-    fstp [varA]
+    fstp qword [varA]
     func_end
 
 mayDestroy:
