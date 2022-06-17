@@ -25,28 +25,6 @@
     pop edx
 %endmacro
 
-%macro print_debug_rnd_num 0
-    cmp [Debug], 1
-    jne %%end_debug_print
-    push rnd_num_format
-    push dword [seed]
-    call printf
-    add esp, 8
-    %%end_debug_print:
-%endmacro
-
-
-%macro print_debug_scaled_rnd 0
-    cmp [Debug], 1
-    jne %%end_debug_print
-    push scaled_rnd_format
-    push qword [varA]
-    push dword [ebp+8]
-    call printf
-    add esp, 8
-    %%end_debug_print:
-%endmacro
-
 ; מי שמאמין לא מתעד
 %macro func_end 0
     mov esp, ebp
@@ -164,7 +142,6 @@ generate_random_number:
         inc ecx
         jmp calc_random
     end_calc_random:
-    print_debug_rnd_num
     mov word[seed], ax      ;seed is now the new random number
     func_end
 
@@ -183,7 +160,6 @@ get_random_scaled_number: ;(int limit) -> varA = scaled float
     fimul dword[varB]                ;now top of stack is the random dist
     mov dword[varA], 0
     fstp dword[varA]                 ;varA now holds the position
-    print_debug_scaled_rnd
     func_end
 
 generate_random_deg: ; initial degree, 0-360
