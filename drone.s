@@ -59,10 +59,9 @@ section .text
         mov ecx, target_pointer
         add ecx, [TARGET_STRUCT_IS_DESTROYED_OFFSET]
         mov ecx, 1     ;set target to destroyed, TODO check if need to use register first
-        pop ecx
         mov ebx, dword[DronesArrayPointer]
         add ebx, dword[currDrone * 4]          ;now ebx points to curr drone
-        add [ebx + DRONE_STRUCT_KILLS_OFFSET], 1 ;INC DRONE KILLS, TODO: check if register is needed first
+        add [ebx + [DRONE_STRUCT_KILLS_OFFSET]], 1 ;INC DRONE KILLS, TODO: check if register is needed first
 
     _drone_end:
         mov ebx, dword[cors]                    ;ebx = pointer to scheduler struct
