@@ -29,7 +29,17 @@ section .data
 section .bss
     
 section .text
-    extern N
+    extern Nval
+    extern move_drone
+    extern mayDestroy
+    extern resume
+    extern target_pointer
+    extern TARGET_STRUCT_IS_DESTROYED_OFFSET
+    extern DRONE_STRUCT_KILLS_OFFSET
+    extern DronesArrayPointer
+    extern currDrone
+    extern cors
+    global run_drone
 
 
 
@@ -43,14 +53,18 @@ section .text
 
     run_drone:
         call move_drone         ;now drone has new position
-        call may_destroy        ;eax holds boolean , TODO ask gal what are the params
+        call mayDestroy        ;eax holds boolean , TODO ask gal what are the params
         cmp eax, 0
         je _drone_end
         ;may destroy = true
-        mov byte[target_pointer + TARGET_STRUCT_IS_DESTROYED_OFFSET], 1     ;set target to destroyed, TODO check if need to use register first
+        mov esi, target_pointer
+        add esi, TARGET_STRUCT_IS_DESTROYED_OFFSET
+        mov byte[esi], 1     ;set target to destroyed, TODO check if need to use register first
         mov ebx, dword[DronesArrayPointer]
-        add ebx, dword[curr_drone * 4]          ;now ebx points to curr drone
-        add [ebx + DRONE_STRUCT_KILLS_OFFSET], 1 ;INC DRONE KILLS, TODO: check if register is needed first
+        mov esi, [currDrone]
+        shl esi, 2
+        add ebx, esi        ;now ebx points to curr drone
+        add dword[ebx + DRONE_STRUCT_KILLS_OFFSET], 1 ;INC DRONE KILLS, TODO: check if register is needed first
 
     _drone_end:
         mov ebx, dword[cors]                    ;ebx = pointer to scheduler struct

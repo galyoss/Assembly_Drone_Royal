@@ -27,8 +27,21 @@ section .data
 section .bss
     
 section .text
-    extern N
-
+    extern Nval
+    extern Rval
+    extern Kval
+    extern Tval
+    extern resume
+    extern currDrone
+    extern move_target
+    extern create_target
+    extern target_pointer
+    extern cors
+    extern TARGET_STRUCT_SIZE
+    extern TARGET_STRUCT_XPOS_OFFSET
+    extern TARGET_STRUCT_YPOS_OFFSET
+    extern TARGET_STRUCT_IS_DESTROYED_OFFSET
+    global run_target
 
 
     ; N<int> – number of drones
@@ -40,7 +53,8 @@ section .text
 
 
     run_target:
-        cmp byte[target_pointer + TARGET_STRUCT_IS_DESTROYED_OFFSET], 1
+        mov esi, target_pointer
+        cmp byte[esi + TARGET_STRUCT_IS_DESTROYED_OFFSET], 1
         je _create_target
 
         _move_target:
@@ -51,5 +65,5 @@ section .text
             call create_target
 
         _return_to_scheduler:
-            mov ebx, [cors]     ; ebx = scheduler*
+            mov ebx, dword[cors]     ; ebx = scheduler*
             call resume

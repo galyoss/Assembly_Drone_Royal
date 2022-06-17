@@ -11,9 +11,9 @@
 %endmacro
 
 %macro modulu 2
-    mov eax, [%1]         
+    mov eax, %1        
     xor edx, edx             
-    mov ebx, [%2]            
+    mov ebx, %2            
     div ebx       ; edx = %1 mod %2
 %endmacro
 
@@ -27,7 +27,23 @@ section .data
 section .bss
     
 section .text
-    extern N
+    extern Nval
+    extern Rval
+    extern Kval
+    extern Tval
+    extern resume
+    extern currDrone
+    extern DronesArrayPointer
+    extern DRONE_STRUCT_ACTIVE_OFFSET
+    extern DRONE_STRUCT_XPOS_OFFSET
+    extern DRONE_STRUCT_YPOS_OFFSET
+    extern DRONE_STRUCT_SPEED_OFFSET
+    extern DRONE_STRUCT_HEADING_OFFSET
+    extern DRONE_STRUCT_KILLS_OFFSET
+    extern TARGET_STRUCT_YPOS_OFFSET
+    extern TARGET_STRUCT_XPOS_OFFSET
+    extern cors
+    global run_schedueler
 
 
 
@@ -41,32 +57,32 @@ section .text
 run_schedueler:
     func_start
     mov dword[curr_step], 0
-    mov ebx, dword[N]
+    mov ebx, dword[Nval]
     mov dword[num_of_drones_left], ebx 
 
     _loop: 
         ;checking if elimination is next
-        modulu dword[curr_step], dword[R]    ;now edx hold curr_step%R
+        modulu dword[curr_step], dword[Rval]    ;now edx hold curr_step%R
         cmp edx, 0
         je _eliminate
 
         ;checking if print is next
         _check_print: 
-        modulu dword[curr_step], dword[K]    ;now edx hold curr_step%K
+        modulu dword[curr_step], dword[Kval]    ;now edx hold curr_step%K
         cmp edx, 0
         je _print_board
 
         _check_move_target:
-        modulu dword[curr_step], dword[T]    ;now edx hold curr_step%T
+        modulu dword[curr_step], dword[Tval]    ;now edx hold curr_step%T
         cmp edx, 0
         je _move_target
 
         _check_drone_alive:
-        modulu dword[curr_step], dword[N]    ;now edx hold curr_step%R
-        mov dword[curr_drone], edx           ;saving curr_drone index for later use
+        modulu dword[curr_step], dword[Nval]    ;now edx hold curr_step%R
+        mov dword[currDrone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
         add ebx, dword[edx * 4]          ;now ebx points to curr drone
-        cmp [ebx + DRONE_STRUCT_ACTIVE], 1
+        cmp byte[ebx + DRONE_STRUCT_ACTIVE_OFFSET], 1
         je _call_drone_cor
         jmp _loop_end
 
@@ -78,7 +94,7 @@ run_schedueler:
 
 
             _eliminate_loop:
-                cmp ecx, dword[N]        ; while i<N
+                cmp ecx, dword[Nval]        ; while i<N
                 je _end_eliminate_loop
                 mov eax, dword[DronesArrayPointer + ecx*4]              ;eax = curr drone*
                 cmp byte[eax+DRONE_STRUCT_ACTIVE_OFFSET], 0         ;isAlive() ?
@@ -95,13 +111,13 @@ run_schedueler:
                 mov eax, dword[DronesArrayPointer + edx*4]           ;eax = loser drone*
                 mov byte[eax+DRONE_STRUCT_ACTIVE_OFFSET], 0         ;loser was eliminated
 
-                dec [num_of_drones_left]
-                cmp [num_of_drones_left], 1
+                dec dword[num_of_drones_left]
+                cmp dword[num_of_drones_left], 1
                 ;TODO JUMP EQUALS END GAME (print board, return to main, free all cors)
-                inc [drones_eliminated_this_round]
-                cmp [drones_eliminated_this_round], 1
+                inc dword[drones_eliminated_this_round]
+                cmp dword[drones_eliminated_this_round], 1
                 je _eliminate
-                mov [drones_eliminated_this_round], 0
+                mov dword[drones_eliminated_this_round], 0
 
             jmp _check_print
         _print_board:
@@ -115,10 +131,10 @@ run_schedueler:
         _call_drone_cor:
             ;edx holds i%N
             add edx, 3                      ;   drones corourtines start at index 3
-            mov ebx, [cors + edx*8]         ; size of cors struct is 8, now ebx holds pointer to curr drone coroutine
+            mov ebx, dword[cors + edx*8]         ; size of cors struct is 8, now ebx holds pointer to curr drone coroutine
             call resume                     ; resume curr drone
         _loop_end:
-            inc [curr_step]                 ; i++
+            inc dword[curr_step]                 ; i++
             jmp _loop
 
 func_end
