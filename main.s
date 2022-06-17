@@ -452,7 +452,7 @@ wrap:
     ficom 0
     jae skip_add_limit
     mov dword [varB], [ebp+8]
-    fld qwoord [varB]
+    fld qword [varB]
     fadd
     skip_add_limit:
     ; now the number is normalized, return it to varA
