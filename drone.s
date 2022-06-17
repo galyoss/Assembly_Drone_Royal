@@ -60,7 +60,11 @@ section .text
         add ecx, [TARGET_STRUCT_IS_DESTROYED_OFFSET]
         mov ecx, 1     ;set target to destroyed, TODO check if need to use register first
         mov ebx, dword[DronesArrayPointer]
-        add ebx, [currDrone]*4          ;now ebx points to curr drone
+        mov ecx, [currDrone]
+        add edx, [currDrone]
+        add edx, [currDrone]
+        add edx, [currDrone] ;Yes this is the most ugly thing, I just want it to fucking work already
+        add ebx, [ecx]         ;now ebx points to curr drone
         add [ebx + 32], 1                       ;INC DRONE KILLS, TODO: check if register is needed first
         pop ecx
 
