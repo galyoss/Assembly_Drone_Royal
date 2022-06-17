@@ -48,6 +48,8 @@
 %endmacro
 
 
+extern currDrone
+
 section .rodata:
     DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
     DRONE_STRUCT_XPOS_OFFSET: equ 0
@@ -234,7 +236,7 @@ convert_deg_to_rad:
     fstp qword [currAngleRad]
     func_end
     
-; specific to gamma
+; TODO: maybe not necassary?
 convert_rad_to_deg:
     func_start
     finit 
@@ -376,7 +378,6 @@ update_drone_deg: ;(drone * ) -> null, update drone deg
     call generate_random_delta_deg  ;now VarA hold delta deg
     mov ebx, [ebp+8]                ;ebx = drone *
     ffree
-    
     ;changing deg
     fld [varA]
     fadd [ebx + DRONE_STRUCT_HEADING_OFFSET]
@@ -388,7 +389,37 @@ update_drone_deg: ;(drone * ) -> null, update drone deg
     func_end
 target_pointer+TARGET_STRUCT_XPOS_OFFSET
 
-wrap_new_position:
+move_drone:
+    ;void func (current drone)
+    ;This func moves the drone's XY:
+
+    func_start
+    mov [currAngleDeg], [currDrone+DRONE_STRUCT_HEADING_OFFSET]
+    mov [varA], [currDrone+DRONE_STRUCT_SPEED_OFFSET]
+    call calc_delta_x
+    ffree
+    fld qword [varA] ; loading the delta
+    fld qword [currDrone+DRONE_STRUCT_XPOS_OFFSET]
+    fadd
+    fstp qword [varA]
+    push BOARD_SIZE ;TODO word?
+    call wrap
+    add esp, 4
+    mov qword [currDrone+DRONE_STRUCT_XPOS_OFFSET], [varA]
+    call calc_delta_y
+    ffree
+    fld qword [varA] ; loading the delta
+    fld qword [currDrone+DRONE_STRUCT_YPOS_OFFSET]
+    fadd
+    fstp qword [varA]
+    push BOARD_SIZE ;TODO word?
+    call wrap
+    add esp, 4
+    mov qword [currDrone+DRONE_STRUCT_YPOS_OFFSET], [varA]
+    func_end
+
+
+wrap:
     ; func (limit): if varA >= limit, set varA = varA-limit. if varA < 0, set varA = varA + limit.
     func_start
     ffree
