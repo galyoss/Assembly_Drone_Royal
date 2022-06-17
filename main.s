@@ -34,7 +34,7 @@
     cmp Debug, 1
     jne end_debug_print
     push scaled_rnd_format
-    push [VarA]
+    push [varA]
     push [ebp+8]
     call printf
     add esp, 8
@@ -48,7 +48,6 @@
 %endmacro
 
 
-extern currDrone
 
 section .rodata:
     DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
@@ -79,21 +78,30 @@ section .data:
     ;; init all "board" related vars: dronesArray, game params, target
     ;; game initializtion: init schedueler, printer, terget
     ;; defining utility functions: random, rad->deg, ged->rad,
-    
-    N : dd 0
-    R : dd 0
-    T : dd 0 _eliminate ;TODO what it this?
-    D : dd 0
-    DronesArrayPointer: dd 0
-    target_pointer: dd 0
+
+    global resume
+    global do_resume
+    global move_drone
+    global move_target
+    global update_drone_deg
+    global create_target
+    global mayDestroy
+
+    global N : dd 0
+    global R : dd 0
+    global T : dd 0 _eliminate ;TODO what it this?
+    global D : dd 0
+    global DronesArrayPointer: dd 0
+    global currDrone: dd 0
+    global target_pointer: dd 0
     currAngleDeg: dq 0
     currAngleRad: dq 0
     Gamma: dq 0
-    varA: dq 0
-    varB: dq 0
-    cors: dd 0
+    global varA: dq 0
+    global varB: dq 0
+    global cors: dd 0
     seed: dw 0
-    Debug: db 1
+    global Debug: db 1
 
 section .text:
 
@@ -138,7 +146,7 @@ generate_random_number:
     func_end
 
 
-get_random_scaled_number: ;(int limit) -> VarA = scaled float
+get_random_scaled_number: ;(int limit) -> varA = scaled float
     func_start
     call generate_random_number     ;now ax and seed hold random short
 
@@ -151,11 +159,11 @@ get_random_scaled_number: ;(int limit) -> VarA = scaled float
     fidiv dword[varB]                 ;now float stack top is a number (0,1];TODO: check if not need f*i*div
 
     mov eax, dword[ebp+8]              ;eax holds limit
-    mov dword [VarB], eax
-    fimul dword[VarB]                ;now top of stack is the random dist
+    mov dword [varB], eax
+    fimul dword[varB]                ;now top of stack is the random dist
 
     mov dword[varA], 0
-    fstp dword[varA]                 ;VarA now holds the position
+    fstp dword[varA]                 ;varA now holds the position
     print_debug_scaled_rnd
     func_end
 
@@ -165,7 +173,7 @@ generate_random_deg: ; initial degree, 0-360
     pushad
     push dword [MAX_DEGREE]
     call get_random_scaled_number
-    ;now VarA holds a random between 0-MAX_DEGREE
+    ;now varA holds a random between 0-MAX_DEGREE
     add esp, 4
     popad
     func_end
@@ -179,10 +187,10 @@ generate_random_delta_deg: ;delta degree, (-60)-(60)
     add esp, 4    
     popad
     ffree
-    fld [VarA]
-    mov dword [VarB], 60
-    fisub dword [VarB]
-    fstp [VarA]
+    fld [varA]
+    mov dword [varB], 60
+    fisub dword [varB]
+    fstp [varA]
     func_end
 
 
@@ -194,10 +202,10 @@ generate_random_delta_xy: ; delta dict, (-10)-(10)
     add esp, 4
     popad
     ffree
-    fld [VarA]
-    mov dword [VarB], 10
-    fisub dword [VarB]
-    fstp [VarA]
+    fld [varA]
+    mov dword [varB], 10
+    fisub dword [varB]
+    fstp [varA]
     func_end
     
 generate_random_position:
@@ -206,7 +214,7 @@ generate_random_position:
     pushad
     push dword [MAX_POS] ;==100
     call get_random_scaled_number
-    ;now VarA holds a random between 0-MAX_POS
+    ;now varA holds a random between 0-MAX_POS
     add esp, 4
     popad
     func_end
@@ -217,7 +225,7 @@ generate_random_speed:
     pushad
     push dword [MAX_SPEED] ;==50
     call get_random_scaled_number
-    ;now VarA holds a random between 0-MAX_POS
+    ;now varA holds a random between 0-MAX_POS
     add esp, 4
     popad
     func_end
@@ -253,7 +261,7 @@ convert_rad_to_deg:
 
 calc_delta_x:
     ; README: before calling this func, drone must put it's speed in varA, heading angle in currAngleDeg
-    ; func (speed[VarA], angle in degrees[currAngleDeg]) -> deltaX[varA]
+    ; func (speed[varA], angle in degrees[currAngleDeg]) -> deltaX[varA]
     func_start
     finit
     call convert_deg_to_rad
@@ -267,7 +275,7 @@ calc_delta_x:
 
 calc_delta_y:
     ; README: before calling this func, drone must put it's speed in varA, heading angle in currAngleDeg
-    ; func (speed[VarA], angle in degrees[currAngleDeg]) -> deltaX[varA]
+    ; func (speed[varA], angle in degrees[currAngleDeg]) -> deltaX[varA]
     func_start
     finit
     call convert_deg_to_rad
@@ -319,13 +327,13 @@ init_drone_sturct:
     mov ebx, [ebp+8]
     ;now ebx holds pointer to the desired drone
     call generate_random_position
-    mov qword [ebx+DRONE_STRUCT_XPOS_OFFSET], [VarA] ; TODO: figure how to load 8 bytes to another address in memory
+    mov qword [ebx+DRONE_STRUCT_XPOS_OFFSET], [varA] ; TODO: figure how to load 8 bytes to another address in memory
     call generate_random_position
-    mov qword [ebx+DRONE_STRUCT_YPOS_OFFSET], [VarA]
+    mov qword [ebx+DRONE_STRUCT_YPOS_OFFSET], [varA]
     call generate_random_deg
-    mov qword [ebx+DRONE_STRUCT_HEADING_OFFSET], [VarA]
+    mov qword [ebx+DRONE_STRUCT_HEADING_OFFSET], [varA]
     call generate_random_speed
-    mov qword [ebx+DRONE_STRUCT_SPEED_OFFSET], [VarA]
+    mov qword [ebx+DRONE_STRUCT_SPEED_OFFSET], [varA]
     mov dword [ebx+DRONE_STRUCT_KILLS_OFFSET], 0
     mov byte [ebx+DRONE_STRUCT_ACTIVE_OFFSET], 1
     func_end
@@ -345,9 +353,9 @@ create_target:
     ; void func (), updated target_pointer->xpos=rnd, target_pointer->ypos=rnd, target_pointer->isdestroyed=0
     func_start
     call generate_random_position
-    mov qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET], [VarA]
+    mov qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET], [varA]
     call generate_random_position
-    mov qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET], [VarA]
+    mov qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET], [varA]
     mov byte [target_pointer+TARGET_STRUCT_IS_DESTROYED_OFFSET], 0
     func_end
 
@@ -359,33 +367,33 @@ move_target:
     ;moving x location
     fld [varA]
     fadd [target_pointer+TARGET_STRUCT_XPOS_OFFSET]
-    fstp [VarA]
+    fstp [varA]
     push [MAX_POS]                      ; pushing board limits
     call wrap_new_position              ; now var A hold wrap x
-    mov qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET], [VarA]    ;TODO see if this works
+    mov qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET], [varA]    ;TODO see if this works
 
     ;moving y location
     fld [varA]
     fadd [target_pointer+TARGET_STRUCT_YPOS_OFFSET]
-    fstp [VarA]
+    fstp [varA]
     push [MAX_POS]                      ; pushing board limits
     call wrap_new_position              ; now var A hold wrap y
-    mov qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET], [VarA]    ;TODO see if this works
+    mov qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET], [varA]    ;TODO see if this works
 
     func_end
 
 update_drone_deg: ;(drone * ) -> null, update drone deg
     func_start
-    call generate_random_delta_deg  ;now VarA hold delta deg
+    call generate_random_delta_deg  ;now varA hold delta deg
     mov ebx, [ebp+8]                ;ebx = drone *
     ffree
     ;changing deg
     fld [varA]
     fadd [ebx + DRONE_STRUCT_HEADING_OFFSET]
-    fstp [VarA]
+    fstp [varA]
     push [MAX_DEGREE]                      ; pushing board limits
     call wrap_new_position              ; now var A hold wrap x
-    mov qword [ebx + DRONE_STRUCT_HEADING_OFFSET], [VarA]    ;TODO see if this works
+    mov qword [ebx + DRONE_STRUCT_HEADING_OFFSET], [varA]    ;TODO see if this works
 
     func_end
 target_pointer+TARGET_STRUCT_XPOS_OFFSET
@@ -424,21 +432,21 @@ wrap:
     ; func (limit): if varA >= limit, set varA = varA-limit. if varA < 0, set varA = varA + limit.
     func_start
     ffree
-    fld [VarA]
+    fld [varA]
     ficom [ebp+8]
     jb skip_subtruct_limit
     subtruct_limit:
-    mov dword [VarB], [ebp+8]
-    fisub dword [VarB]
+    mov dword [varB], [ebp+8]
+    fisub dword [varB]
     skip_subtruct_limit:
     ; now [floating stack head (our varA)] is < limit, now we need to check if it's negative and fix
     ficom 0
     jae skip_add_limit
-    mov dword [VarB], [ebp+8]
-    faddi [VarB]
+    mov dword [varB], [ebp+8]
+    faddi [varB]
     skip_add_limit:
-    ; now the number is normalized, return it to VarA
-    fstp [VarA]
+    ; now the number is normalized, return it to varA
+    fstp [varA]
     func_end
 
 mayDestroy:
@@ -529,4 +537,18 @@ init_co_routines:
     mov dword [cors+ebx*8+4], eax
     jmp drones_cors_init_loop
 
+; EBX is pointer to co-init structure of co-routine to be resumed
+; CURR holds a pointer to co-init structure of the curent co-routine
+resume:
+	pushfd					; Save state of caller
+	pushad
+	mov	edx, [CURR]
+	mov	[edx+SPP], esp		; Save current SP
+
+do_resume:
+	mov	esp, [ebx+SPP]  	; Load SP for resumed co-routine
+	mov	[CURR], ebx
+	popad					; Restore resumed co-routine state
+	popfd
+	ret                     ; "return" to resumed co-routine!
 
