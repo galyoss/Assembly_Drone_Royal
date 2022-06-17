@@ -27,10 +27,10 @@ section .data
 section .bss
     
 section .text
-    extern N
-    extern R
-    extern K
-    extern T
+    extern Nval
+    extern Rval
+    extern Kval
+    extern Tval
     extern resume
 
 
@@ -50,23 +50,23 @@ run_schedueler:
 
     _loop: 
         ;checking if elimination is next
-        modulu dword[curr_step], dword[R]    ;now edx hold curr_step%R
+        modulu dword[curr_step], dword[Rval]    ;now edx hold curr_step%R
         cmp edx, 0
         je _eliminate
 
         ;checking if print is next
         _check_print: 
-        modulu dword[curr_step], dword[K]    ;now edx hold curr_step%K
+        modulu dword[curr_step], dword[Kval]    ;now edx hold curr_step%K
         cmp edx, 0
         je _print_board
 
         _check_move_target:
-        modulu dword[curr_step], dword[T]    ;now edx hold curr_step%T
+        modulu dword[curr_step], dword[Tval]    ;now edx hold curr_step%T
         cmp edx, 0
         je _move_target
 
         _check_drone_alive:
-        modulu dword[curr_step], dword[N]    ;now edx hold curr_step%R
+        modulu dword[curr_step], dword[Nval]    ;now edx hold curr_step%R
         mov dword[currDrone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
         add ebx, dword[edx * 4]          ;now ebx points to curr drone
@@ -82,7 +82,7 @@ run_schedueler:
 
 
             _eliminate_loop:
-                cmp ecx, dword[N]        ; while i<N
+                cmp ecx, dword[Nval]        ; while i<N
                 je _end_eliminate_loop
                 mov eax, dword[DronesArrayPointer + ecx*4]              ;eax = curr drone*
                 cmp byte[eax+DRONE_STRUCT_ACTIVE_OFFSET], 0         ;isAlive() ?

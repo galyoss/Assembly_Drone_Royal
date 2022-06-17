@@ -87,10 +87,10 @@ section .data:
     global create_target
     global mayDestroy
 
-    global N : dd 0
-    global R : dd 0
-    global T : dd 0 _eliminate ;TODO what it this?
-    global D : dd 0
+    global Nval : dd 0
+    global Rval : dd 0
+    global Tval : dd 0 _eliminate ;TODO what it this?
+    global Dval : dd 0
     global DronesArrayPointer: dd 0
     global currDrone: dd 0
     global target_pointer: dd 0
@@ -396,7 +396,6 @@ update_drone_deg: ;(drone * ) -> null, update drone deg
     mov qword [ebx + DRONE_STRUCT_HEADING_OFFSET], [varA]    ;TODO see if this works
 
     func_end
-target_pointer+TARGET_STRUCT_XPOS_OFFSET
 
 move_drone:
     ;void func (current drone)
@@ -443,7 +442,7 @@ wrap:
     ficom 0
     jae skip_add_limit
     mov dword [varB], [ebp+8]
-    faddi [varB]
+    faddi qword [varB]
     skip_add_limit:
     ; now the number is normalized, return it to varA
     fstp [varA]
@@ -471,7 +470,7 @@ mayDestroy:
 	fsqrt
 
 	; compare distance with dval and return true or false accordingly
-	fsub dword [D]					; stack = distance - D
+	fsub dword [Dval]					; stack = distance - D
 	fldz                                ; load 0 to the stack
 	fcomip								; if (stack <= 0)
 	jae return_true
@@ -527,7 +526,9 @@ init_co_routines:
     init_drones_cors:
     mov ebx, 3 ; our loop counter (cmp ebx with [N]+3)
     drones_cors_init_loop:
-    cmp ebx, [N]+3 ; if not working, move [N]+3 into register 
+    mov esi, dword [N]
+    add esi, 3
+    cmp ebx, esi         ; if not working, move [N]+3 into register
     je end_drones_cors_init_loop
     mov dword [cors+ebx*8], run_drone
     push 1

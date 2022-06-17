@@ -29,7 +29,7 @@ section .data
 section .bss
     
 section .text
-    extern N
+    extern Nval
     extern move_drone
     extern mayDestroy
     extern resume
