@@ -221,10 +221,11 @@ generate_random_speed:
 
 
 convert_deg_to_rad:
+    ; func(angle in deg(in currAngleDeg)) -> AngleinRad(in currAngleRad)
     func_start
     finit 
     fld qword [currAngleDeg]
-    mov [varA], dword 0 ; TODO maybe delete?
+    mov [varA], dword 0 ; TODO remove?
     mov [varA], dword 180
     fild dword [varA]
     fdiv
@@ -248,9 +249,31 @@ convert_rad_to_deg:
     func_end
 
 calc_delta_x:
+    ; README: before calling this func, drone must put it's speed in varA, heading angle in currAngleDeg
+    ; func (speed[VarA], angle in degrees[currAngleDeg]) -> deltaX[varA]
+    func_start
+    finit
+    call convert_deg_to_rad
+    fld qword [currAngleRad]
+    fcos
+    fld qword [varA]
+    fmul
+    fstp qword [varA]
+    func_end
 
 
 calc_delta_y:
+    ; README: before calling this func, drone must put it's speed in varA, heading angle in currAngleDeg
+    ; func (speed[VarA], angle in degrees[currAngleDeg]) -> deltaX[varA]
+    func_start
+    finit
+    call convert_deg_to_rad
+    fld qword [currAngleRad]
+    fsin
+    fld qword [varA]
+    fmul
+    fstp qword [varA]
+    func_end
 
 
 initDronesArray:
