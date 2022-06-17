@@ -67,7 +67,7 @@ section .data
 section .bss
     
 section .text
-    extern N
+    extern Nval
     extern printf
 
 
@@ -79,7 +79,7 @@ section .text
 
         xor ecx, ecx
         _print_drones_loop:
-            cmp ecx, [N]            ;while i < N
+            cmp ecx, [Nval]            ;while i < N
             je _return_to_printer
             mov ebx, [DronesArrayPointer + ecx * 4]     ; ebx = drone[i] pointer
             inc ecx                                     ; i++
