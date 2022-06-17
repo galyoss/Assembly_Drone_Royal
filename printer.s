@@ -38,7 +38,7 @@
     popad
 %endmacro
 
-%macro  print_comma
+%macro  print_comma 0
     pushad
     push comma_format
     call printf
@@ -46,7 +46,7 @@
     popad
 %endmacro
 
-%macro  print_new_line
+%macro print_new_line 0
     pushad
     push new_line_format
     call printf
