@@ -82,7 +82,8 @@ section .data:
     
     N : dd 0
     R : dd 0
-    T : dd 0_eliminate
+    T : dd 0 _eliminate ;TODO what it this?
+    D : dd 0
     DronesArrayPointer: dd 0
     target_pointer: dd 0
     currAngleDeg: dq 0
@@ -439,6 +440,45 @@ wrap:
     ; now the number is normalized, return it to VarA
     fstp [VarA]
     func_end
+
+mayDestroy:
+    ; func(drone[currDrone], target[target_pointer])->bool[eax]
+    func_start
+	mov eax,0                           ;eax will hold the result
+
+	; we need to calculate:
+	; distance = sqrt((target_x-drone_x)^2 + (target_y-drone_y)^2)
+	ffree
+	fld qword [currDrone+DRONE_STRUCT_XPOS_OFFSET]
+	fsub qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET]
+	fst st1     ;it duplicates the number
+	fmulp
+	fstp qword [varA]					; var1 = (target_x - drone_x)^2
+    ;floats stack is empty now
+	fld qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET]
+	fsub qword [currDrone+DRONE_STRUCT_YPOS_OFFSET]
+	fst st1     ;it duplicates the number
+	fmulp								; stack = (target_y - drone_y)^2
+	fadd qword [varA]					; stack = (target_y - drone_y)^2 + (target_x - drone_x)^2
+	fsqrt
+
+	; compare distance with dval and return true or false accordingly
+	fsub dword [D]					; stack = distance - D
+	fldz                                ; load 0 to the stack
+	fcomip								; if (stack <= 0)
+	jae return_true
+	; else - return_false
+	popad
+	mov eax, 0							; false == 0
+	mov esp, ebp
+	pop ebp
+	ret
+	return_true:
+		popad
+		mov eax, 1							; true == 1
+		mov esp, ebp
+		pop ebp
+		ret
 
 
 init_co_routines:
