@@ -86,9 +86,9 @@ section .text
 
     run_printer:
         _print_target:
-            print_float_2d [target_pointer + TARGET_STRUCT_XPOS_OFFSET] ;TODO, check if register is needed
+            print_float_2d [target_pointer + 0] ;TODO, check if register is needed
             print_comma
-            print_float_2d [target_pointer + TARGET_STRUCT_YPOS_OFFSET]
+            print_float_2d [target_pointer + 8]
 
         xor ecx, ecx
         _print_drones_loop:
