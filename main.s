@@ -16,16 +16,6 @@
     mov ebp, esp
 %endmacro
 
-%macro print_debug_rnd_num 0
-    cmp Debug, 1
-    jne end_debug_print
-    push rnd_num_format
-    push [seed]
-    call printf
-    add esp, 4
-    %%end_debug_print:
-%endmacro
-
 %macro mov_mem_to_mem_qwords 2
     push edx
     mov edx, dword [%2]
@@ -35,14 +25,26 @@
     pop edx
 %endmacro
 
+%macro print_debug_rnd_num 0
+    cmp Debug, 1
+    jne %%end_debug_print
+    push rnd_num_format
+    push dword [seed]
+    call printf
+    add esp, 4
+    %%end_debug_print:
+%endmacro
+
+
 %macro print_debug_scaled_rnd 0
     cmp Debug, 1
-    jne end_debug_print
+    jne %%end_debug_print
     push scaled_rnd_format
     push [varA]
     push [ebp+8]
     call printf
     add esp, 8
+    %%end_debug_print:
 %endmacro
 
 ; מי שמאמין לא מתעד
@@ -316,7 +318,7 @@ initDronesArray:
     ;; Struct drone: 8 bytes Xpos, 8 bytes Ypos, 8 bytes Angle, 8 byte speed, byte isActive
 
     func_start
-    push [Nval]
+    push dword [Nval]
     push 4
     call calloc
     add esp, 8
@@ -390,8 +392,8 @@ move_target:
     fld qword [varA]
     fadd qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET]
     fstp qword [varA]
-    push dword [BAORD_SIZE]                      ; pushing board limits
-    call wrap_new_position              ; now var A hold wrap x
+    push dword [BOARD_SIZE]                      ; pushing board limits
+    call wrap              ; now var A hold wrap x
     mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_XPOS_OFFSET, varA    ;TODO see if this works
 
     ;moving y location
