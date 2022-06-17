@@ -1,18 +1,15 @@
 ;; init drone locations
 ;; init target
-
 ;;TODO SATURDAY:
     ; finish random functions (move drone, calc angle, calc angle delta...)
     ; decide on CORS structs
     ; parse input
     ;  gal maybe geh -> maybe debug prints
-    ; if god helps us work fast DO SCHEDUELER
 
 ;;TODO NEXT TIME ON DRAGON BALL Z:
     ; resume + do resume
     ; drone functionality: may destroy, move
     ;print pasha is geh with cors
-
 ; מי שמאמין לא מתעד
 %macro func_start 0
     push ebp
@@ -55,7 +52,6 @@
     ret
 %endmacro
 
-
 section .rodata:
     DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
     DRONE_STRUCT_XPOS_OFFSET: equ 0
@@ -76,9 +72,12 @@ section .rodata:
     BIT_MASK_13: equ 8
     BIT_MASK_11: equ 32
     MAX_SEED: equ 65535
+    MAX_SPEED: equ 50
     MAX_ANGLE_DELTA_LIM: equ 60
     MIN_ANGLE_DELTA_LIM: equ -60
     BOARD_SIZE: equ 100
+    MAX_DELTA_DEG_RANGE: 120
+    MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
 
 section .data:
@@ -86,6 +85,7 @@ section .data:
     ;; game initializtion: init schedueler, printer, terget
     ;; defining utility functions: random, rad->deg, ged->rad,
     extern calloc
+    extern printf
     extern run_printer
     extern run_target
     extern run_drone
@@ -107,6 +107,7 @@ section .data:
     global cors
     global varA
     global varB
+    global Debug
 
     Nval : dd 0
     Rval : dd 0
@@ -122,7 +123,7 @@ section .data:
     varB: dq 0
     cors: dd 0
     seed: dw 0
-    global Debug: db 1
+    Debug: db 1
 
 section .text:
 
@@ -208,10 +209,10 @@ generate_random_delta_deg: ;delta degree, (-60)-(60)
     add esp, 4    
     popad
     ffree
-    fld [varA]
+    fld qword [varA]
     mov dword [varB], 60
     fisub dword [varB]
-    fstp [varA]
+    fstp qword [varA]
     func_end
 
 
@@ -223,17 +224,17 @@ generate_random_delta_xy: ; delta dict, (-10)-(10)
     add esp, 4
     popad
     ffree
-    fld [varA]
+    fld qword [varA]
     mov dword [varB], 10
     fisub dword [varB]
-    fstp [varA]
+    fstp qword [varA]
     func_end
     
 generate_random_position:
     ; func ()-> random float between 0-360, in varA
     func_start
     pushad
-    push dword [MAX_POS] ;==100
+    push dword [BOARD_SIZE] ;==100
     call get_random_scaled_number
     ;now varA holds a random between 0-MAX_POS
     add esp, 4
@@ -315,7 +316,7 @@ initDronesArray:
     ;; Struct drone: 8 bytes Xpos, 8 bytes Ypos, 8 bytes Angle, 8 byte speed, byte isActive
 
     func_start
-    push [N]
+    push [Nval]
     push 4
     call calloc
     add esp, 8
@@ -324,7 +325,7 @@ initDronesArray:
     ;looping:
     mov ebx, 0
     initiating_drone:
-        cmp ebx, dword [N]
+        cmp ebx, dword [Nval]
         je end_init_drones_loop
         push 1
         push DroneStructLen
@@ -339,7 +340,7 @@ initDronesArray:
         inc ebx
         jmp initiating_drone
 
-    je end_init_drones_loop:
+    end_init_drones_loop:
         func_end
 
 init_drone_sturct:
@@ -348,13 +349,13 @@ init_drone_sturct:
     mov ebx, [ebp+8]
     ;now ebx holds pointer to the desired drone
     call generate_random_position
-    mov qword [ebx+DRONE_STRUCT_XPOS_OFFSET], [varA] ; TODO: figure how to load 8 bytes to another address in memory
+    mov_mem_to_mem_qwords ebx+DRONE_STRUCT_XPOS_OFFSET, varA ; TODO: figure how to load 8 bytes to another address in memory
     call generate_random_position
-    mov qword [ebx+DRONE_STRUCT_YPOS_OFFSET], [varA]
+    mov_mem_to_mem_qwords ebx+DRONE_STRUCT_YPOS_OFFSET, varA
     call generate_random_deg
-    mov qword [ebx+DRONE_STRUCT_HEADING_OFFSET], [varA]
+    mov_mem_to_mem_qwords ebx+DRONE_STRUCT_HEADING_OFFSET, varA
     call generate_random_speed
-    mov qword [ebx+DRONE_STRUCT_SPEED_OFFSET], [varA]
+    mov_mem_to_mem_qwords ebx+DRONE_STRUCT_SPEED_OFFSET, varA
     mov dword [ebx+DRONE_STRUCT_KILLS_OFFSET], 0
     mov byte [ebx+DRONE_STRUCT_ACTIVE_OFFSET], 1
     func_end
@@ -367,16 +368,16 @@ init_target:
     call calloc
     ; now eax holds the pointer
     mov dword [target_pointer], eax
-    call createTarget
+    call create_target
 
     
 create_target:
     ; void func (), updated target_pointer->xpos=rnd, target_pointer->ypos=rnd, target_pointer->isdestroyed=0
     func_start
     call generate_random_position
-    mov qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET], [varA]
+    mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_XPOS_OFFSET, varA
     call generate_random_position
-    mov qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET], [varA]
+    mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_YPOS_OFFSET, varA
     mov byte [target_pointer+TARGET_STRUCT_IS_DESTROYED_OFFSET], 0
     func_end
 
@@ -386,20 +387,20 @@ move_target:
     ffree
 
     ;moving x location
-    fld [varA]
-    fadd [target_pointer+TARGET_STRUCT_XPOS_OFFSET]
-    fstp [varA]
-    push [MAX_POS]                      ; pushing board limits
+    fld qword [varA]
+    fadd qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET]
+    fstp qword [varA]
+    push dword [BAORD_SIZE]                      ; pushing board limits
     call wrap_new_position              ; now var A hold wrap x
-    mov qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET], [varA]    ;TODO see if this works
+    mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_XPOS_OFFSET, varA    ;TODO see if this works
 
     ;moving y location
-    fld [varA]
-    fadd [target_pointer+TARGET_STRUCT_YPOS_OFFSET]
-    fstp [varA]
-    push [MAX_POS]                      ; pushing board limits
-    call wrap_new_position              ; now var A hold wrap y
-    mov qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET], [varA]    ;TODO see if this works
+    fld qword [varA]
+    fadd qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET]
+    fstp qword [varA]
+    push dword [BOARD_SIZE]                      ; pushing board limits
+    call wrap              ; now var A hold wrap y
+    mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_YPOS_OFFSET, varA    ;TODO see if this works
 
     func_end
 
@@ -409,12 +410,12 @@ update_drone_deg: ;(drone * ) -> null, update drone deg
     mov ebx, [ebp+8]                ;ebx = drone *
     ffree
     ;changing deg
-    fld [varA]
-    fadd [ebx + DRONE_STRUCT_HEADING_OFFSET]
-    fstp [varA]
-    push [MAX_DEGREE]                      ; pushing board limits
+    fld qword [varA]
+    fadd qword [ebx + DRONE_STRUCT_HEADING_OFFSET]
+    fstp qword [varA]
+    push dword [MAX_DEGREE]                      ; pushing board limits
     call wrap                             ; now var A hold wrap x
-    mov qword [ebx + DRONE_STRUCT_HEADING_OFFSET], [varA]    ;TODO see if this works
+    mov_mem_to_mem_qwords ebx+DRONE_STRUCT_HEADING_OFFSET, varA  ;TODO see if this works
 
     func_end
 
@@ -423,8 +424,8 @@ move_drone:
     ;This func moves the drone's XY:
 
     func_start
-    mov [currAngleDeg], [currDrone+DRONE_STRUCT_HEADING_OFFSET]
-    mov [varA], [currDrone+DRONE_STRUCT_SPEED_OFFSET]
+    mov_mem_to_mem_qwords currAngleDeg, currDrone+DRONE_STRUCT_HEADING_OFFSET
+    mov_mem_to_mem_qwords varA, currDrone+DRONE_STRUCT_SPEED_OFFSET
     call calc_delta_x
     ffree
     fld qword [varA] ; loading the delta
@@ -434,7 +435,7 @@ move_drone:
     push BOARD_SIZE ;TODO word?
     call wrap
     add esp, 4
-    mov qword [currDrone+DRONE_STRUCT_XPOS_OFFSET], [varA]
+    mov_mem_to_mem_qwords currDrone+DRONE_STRUCT_XPOS_OFFSET, varA
     call calc_delta_y
     ffree
     fld qword [varA] ; loading the delta
@@ -444,7 +445,7 @@ move_drone:
     push BOARD_SIZE ;TODO word?
     call wrap
     add esp, 4
-    mov qword [currDrone+DRONE_STRUCT_YPOS_OFFSET], [varA]
+    mov_mem_to_mem_qwords currDrone+DRONE_STRUCT_YPOS_OFFSET, varA
     func_end
 
 
