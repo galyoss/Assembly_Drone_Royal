@@ -86,20 +86,30 @@ section .data:
     global update_drone_deg
     global create_target
     global mayDestroy
+    global Nval
+    global Rval
+    global Tval
+    global Dval
+    global DronesArrayPointer
+    global currDrone
+    global target_pointer
+    global cors
+    global varA
+    global varB
 
-    global Nval : dd 0
-    global Rval : dd 0
-    global Tval : dd 0 _eliminate ;TODO what it this?
-    global Dval : dd 0
-    global DronesArrayPointer: dd 0
-    global currDrone: dd 0
-    global target_pointer: dd 0
+    Nval : dd 0
+    Rval : dd 0
+    Tval : dd 0
+    Dval : dd 0
+    DronesArrayPointer: dd 0
+    currDrone: dd 0
+    target_pointer: dd 0
     currAngleDeg: dq 0
     currAngleRad: dq 0
     Gamma: dq 0
-    global varA: dq 0
-    global varB: dq 0
-    global cors: dd 0
+    varA: dq 0
+    varB: dq 0
+    cors: dd 0
     seed: dw 0
     global Debug: db 1
 
@@ -442,7 +452,8 @@ wrap:
     ficom 0
     jae skip_add_limit
     mov dword [varB], [ebp+8]
-    faddi qword [varB]
+    fld qwoord [varB]
+    fadd
     skip_add_limit:
     ; now the number is normalized, return it to varA
     fstp [varA]
