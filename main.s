@@ -76,7 +76,7 @@ section .rodata:
     MAX_ANGLE_DELTA_LIM: equ 60
     MIN_ANGLE_DELTA_LIM: equ -60
     BOARD_SIZE: equ 100
-    MAX_DELTA_DEG_RANGE: 120
+    MAX_DELTA_DEG_RANGE: equ 120
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
 
