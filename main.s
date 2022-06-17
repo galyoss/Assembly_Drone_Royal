@@ -48,7 +48,6 @@
 %endmacro
 
 
-
 section .rodata:
     DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
     DRONE_STRUCT_XPOS_OFFSET: equ 0
@@ -62,7 +61,7 @@ section .rodata:
     TARGET_STRUCT_XPOS_OFFSET: equ 0
     TARGET_STRUCT_YPOS_OFFSET: equ 8
     TARGET_STRUCT_IS_DESTROYED_OFFSET: equ 16
-
+    MAX_DEGREE: equ 360
     CO_STK_SIZE: equ 16384 ; 16*1024
     BIT_MASK_16: equ 1
     BIT_MASK_14: equ 4
@@ -78,7 +77,10 @@ section .data:
     ;; init all "board" related vars: dronesArray, game params, target
     ;; game initializtion: init schedueler, printer, terget
     ;; defining utility functions: random, rad->deg, ged->rad,
-
+    extern calloc
+    extern run_printer
+    extern run_target
+    extern run_schedueler
     global resume
     global do_resume
     global move_drone
@@ -503,7 +505,7 @@ init_co_routines:
     func_start
     mov eax, 0
     mov eax, 3
-    add eax, [N]
+    add eax, [Nval]
     ; eax hold num of required cors - printer, scheder, target, N drones
     push eax
     push 8 ; TODO - does the order matter?
@@ -537,7 +539,7 @@ init_co_routines:
     init_drones_cors:
     mov ebx, 3 ; our loop counter (cmp ebx with [N]+3)
     drones_cors_init_loop:
-    mov esi, dword [N]
+    mov esi, dword [Nval]
     add esi, 3
     cmp ebx, esi         ; if not working, move [N]+3 into register
     je end_drones_cors_init_loop
@@ -548,6 +550,8 @@ init_co_routines:
     add esp, 8
     mov dword [cors+ebx*8+4], eax
     jmp drones_cors_init_loop
+    end_drones_cors_init_loop:
+    func_end
 
 ; EBX is pointer to co-init structure of co-routine to be resumed
 ; CURR holds a pointer to co-init structure of the curent co-routine

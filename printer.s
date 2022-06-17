@@ -69,6 +69,7 @@ section .bss
 section .text
     extern Nval
     extern printf
+    global run_printer
 
 
     run_printer:
