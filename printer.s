@@ -31,7 +31,7 @@
 ;%1 = int to print
 %macro  print_decimal 1
     pushad
-    push dword %1
+    push dword [%1]
     push decimal_format
     call printf
     add esp, 8
@@ -86,9 +86,9 @@ section .text
 
     run_printer:
         _print_target:
-            print_float_2d [target_pointer + 0] ;TODO, check if register is needed
+            print_float_2d target_pointer ;TODO, check if register is needed
             print_comma
-            print_float_2d [target_pointer + 8]
+            print_float_2d target_pointer + 8
 
         xor ecx, ecx
         _print_drones_loop:
