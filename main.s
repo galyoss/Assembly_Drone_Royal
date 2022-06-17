@@ -29,6 +29,15 @@
     %%end_debug_print:
 %endmacro
 
+%macro mov_mem_to_mem_qwords 2
+    push edx
+    mov edx, dword [%2]
+    mov dword [%1], edx
+    mov edx, dword [%2+4]
+    mov dword [%1+4], edx
+    pop edx
+%endmacro
+
 %macro print_debug_scaled_rnd 0
     cmp Debug, 1
     jne end_debug_print
@@ -443,7 +452,7 @@ wrap:
     ; func (limit): if varA-limit >= 0, set varA = varA-limit. if varA < 0, set varA = varA + limit.
     func_start
     ffree
-    fld [varA]
+    fld qword [varA]
     fld dword [ebp+8]
     fcomip
     jb skip_subtruct_limit
