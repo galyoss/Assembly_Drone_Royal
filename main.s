@@ -542,12 +542,12 @@ init_co_routines:
 resume:
 	pushfd					; Save state of caller
 	pushad
-	mov	edx, [CURR]
-	mov	[edx+SPP], esp		; Save current SP
+	mov	edx, [cors]
+	mov	[edx+8], esp		; Save current SP
 
 do_resume:
-	mov	esp, [ebx+SPP]  	; Load SP for resumed co-routine
-	mov	[CURR], ebx
+	mov	esp, [ebx+8]  	; Load SP for resumed co-routine
+	mov	[cors], ebx
 	popad					; Restore resumed co-routine state
 	popfd
 	ret                     ; "return" to resumed co-routine!
