@@ -38,6 +38,7 @@ section .text
     extern DRONE_STRUCT_KILLS_OFFSET
     extern DronesArrayPointer
     extern currDrone
+    extern cors
 
 
 
@@ -65,7 +66,7 @@ section .text
         add edx, [currDrone]
         add edx, [currDrone] ;Yes this is the most ugly thing, I just want it to fucking work already
         add ebx, [ecx]         ;now ebx points to curr drone
-        add [ebx + 32], 1                       ;INC DRONE KILLS, TODO: check if register is needed first
+        add dword [ebx + 32], 1                       ;INC DRONE KILLS, TODO: check if register is needed first
         pop ecx
 
     _drone_end:
