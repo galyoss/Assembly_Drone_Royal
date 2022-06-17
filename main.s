@@ -26,22 +26,22 @@
 %endmacro
 
 %macro print_debug_rnd_num 0
-    cmp Debug, 1
+    cmp [Debug], 1
     jne %%end_debug_print
     push rnd_num_format
     push dword [seed]
     call printf
-    add esp, 4
+    add esp, 8
     %%end_debug_print:
 %endmacro
 
 
 %macro print_debug_scaled_rnd 0
-    cmp Debug, 1
+    cmp [Debug], 1
     jne %%end_debug_print
     push scaled_rnd_format
-    push [varA]
-    push [ebp+8]
+    push qword [varA]
+    push dword [ebp+8]
     call printf
     add esp, 8
     %%end_debug_print:
@@ -165,7 +165,6 @@ generate_random_number:
         jmp calc_random
     end_calc_random:
     print_debug_rnd_num
-     
     mov word[seed], ax      ;seed is now the new random number
     func_end
 
@@ -173,19 +172,15 @@ generate_random_number:
 get_random_scaled_number: ;(int limit) -> varA = scaled float
     func_start
     call generate_random_number     ;now ax and seed hold random short
-
     ffree
     mov dword[varA], 0               ; clean varA
     mov word[varA], ax              ; varA = random short
     fld dword[varA]                 ; push varA
-
     mov dword[varB], MAX_SEED
     fidiv dword[varB]                 ;now float stack top is a number (0,1];TODO: check if not need f*i*div
-
     mov eax, dword[ebp+8]              ;eax holds limit
     mov dword [varB], eax
     fimul dword[varB]                ;now top of stack is the random dist
-
     mov dword[varA], 0
     fstp dword[varA]                 ;varA now holds the position
     print_debug_scaled_rnd
