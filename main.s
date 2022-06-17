@@ -404,7 +404,7 @@ update_drone_deg: ;(drone * ) -> null, update drone deg
     fadd [ebx + DRONE_STRUCT_HEADING_OFFSET]
     fstp [varA]
     push [MAX_DEGREE]                      ; pushing board limits
-    call wrap_new_position              ; now var A hold wrap x
+    call wrap                             ; now var A hold wrap x
     mov qword [ebx + DRONE_STRUCT_HEADING_OFFSET], [varA]    ;TODO see if this works
 
     func_end
@@ -440,22 +440,21 @@ move_drone:
 
 
 wrap:
-    ; func (limit): if varA >= limit, set varA = varA-limit. if varA < 0, set varA = varA + limit.
+    ; func (limit): if varA-limit >= 0, set varA = varA-limit. if varA < 0, set varA = varA + limit.
     func_start
     ffree
     fld [varA]
-    ficom [ebp+8]
+    fld dword [ebp+8]
+    fcomip
     jb skip_subtruct_limit
     subtruct_limit:
-    mov dword [varB], [ebp+8]
-    fisub dword [varB]
+    fisub dword [ebp+8]
     skip_subtruct_limit:
     ; now [floating stack head (our varA)] is < limit, now we need to check if it's negative and fix
     fldz
     fcomip
     jae skip_add_limit
-    mov dword [varB], [ebp+8]
-    fld qword [varB]
+    fld dword [ebp+8]
     fadd
     skip_add_limit:
     ; now the number is normalized, return it to varA
