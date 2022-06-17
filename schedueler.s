@@ -38,7 +38,7 @@ section .text
     ; d<float> – maximum distance that allows to destroy a target (at most 20)
     ; seed<int> - seed for initialization of LFSR shift register 
 
-scheduelr_cor:
+run_schedueler:
     func_start
     mov dword[curr_step], 0
     mov ebx, dword[N]
@@ -63,6 +63,7 @@ scheduelr_cor:
 
         _check_drone_alive:
         modulu dword[curr_step], dword[N]    ;now edx hold curr_step%R
+        mov dword[curr_drone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
         add ebx, dword[edx * 4]          ;now ebx points to curr drone
         cmp [ebx + DRONE_STRUCT_ACTIVE], 1
@@ -96,7 +97,7 @@ scheduelr_cor:
 
                 dec [num_of_drones_left]
                 cmp [num_of_drones_left], 1
-                ;TODO JUMP EQUALS END GAME
+                ;TODO JUMP EQUALS END GAME (print board, return to main, free all cors)
                 inc [drones_eliminated_this_round]
                 cmp [drones_eliminated_this_round], 1
                 je _eliminate
@@ -104,15 +105,24 @@ scheduelr_cor:
 
             jmp _check_print
         _print_board:
-
-            jmp _check_move_target
+            mov ebx, dword[cors+16]         ; move pointer of printer coroutine to ebx
+            call resume                     ; resume printer
+            jmp _check_move_target          ; board was printed
         _move_target:
-
-            jmp _check_drone_alive
+            mov ebx, dword[cors+8]          ; move target of printer coroutine to ebx
+            call resume                     ; resume target
+            jmp _check_drone_alive          ; target was moved
         _call_drone_cor:
-
+            ;edx holds i%N
+            add edx, 3                      ;   drones corourtines start at index 3
+            mov ebx, [cors + edx*8]         ; size of cors struct is 8, now ebx holds pointer to curr drone coroutine
+            call resume                     ; resume curr drone
         _loop_end:
+            inc [curr_step]                 ; i++
+            jmp _loop
 
 func_end
+
+;TODO -> check if func start and func end are needed here, because resume and do resume take care of same things i think
 
 
