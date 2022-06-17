@@ -19,7 +19,7 @@
 ;%1 = pointer to float to print    (TODO check if %1 + 4 is valid command)
 %macro print_float_2d 1
 	pushad
-    mov ebx, %1
+    mov ebx, qword[%1]
 	push dword [ebx]    ;pushes 32 bits (MSB)
     push dword [ebx+4]   ;pushes 32 bits (LSB)
 	push float_format
@@ -101,15 +101,15 @@ section .text
 
             print_decimal ecx                           ; drone print index starts at 1
             print_comma
-            print_float_2d qword[ebx+DRONE_STRUCT_XPOS_OFFSET]       ; TODO check if need qword or register
+            print_float_2d ebx+DRONE_STRUCT_XPOS_OFFSET       ; TODO check if need qword or register
             print_comma
-            print_float_2d qword[ebx+DRONE_STRUCT_YPOS_OFFSET]
+            print_float_2d ebx+DRONE_STRUCT_YPOS_OFFSET
             print_comma
-            print_float_2d qword[ebx+DRONE_STRUCT_SPEED_OFFSET]
+            print_float_2d ebx+DRONE_STRUCT_SPEED_OFFSET
             print_comma
-            print_float_2d qword[ebx+DRONE_STRUCT_HEADING_OFFSET]
+            print_float_2d ebx+DRONE_STRUCT_HEADING_OFFSET
             print_comma
-            print_decimal  qword[ebx+DRONE_STRUCT_KILLS_OFFSET]
+            print_decimal  ebx+DRONE_STRUCT_KILLS_OFFSET
             print_new_line
 
             jmp _print_drones_loop
