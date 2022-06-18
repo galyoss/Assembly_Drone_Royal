@@ -554,7 +554,7 @@ init_co_routines:
     call calloc
     add esp, 8
     mov dword [cors+4], eax
-    mov [SPT], esp	                ; save ESP value
+    mov [SPT], esp	                ;   save ESP value
     mov esp, [cors+4]               ; get initial ESP value – pointer to COi stack
     mov eax, [cors]                 ; get initial EIP value – pointer to COi function
     push eax                        ; push initial “return” address
@@ -644,7 +644,7 @@ main:
     call init_co_routines
     mov [SPMAIN], esp
     mov dword [currDrone], 0			; Curr drone will hold the first drone ID
-    mov ebx, [cors]						; Ebx is pointer to scheduler function
+    mov ebx, cors						; Ebx is pointer to scheduler function
     jmp do_resume
 
     finish_main:
