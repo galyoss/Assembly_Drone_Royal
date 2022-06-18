@@ -16,6 +16,18 @@
     mov ebp, esp
 %endmacro
 
+
+%macro  parseArgInto 2
+    pushad
+    push    %1
+    push    %2
+    push    dword[ebx]
+    call    sscanf
+    add     esp, 12
+    popad
+    add     ebx, 4
+%endmacro
+
 %macro mov_mem_to_mem_qwords 2
     push edx
     mov edx, dword [%2]
@@ -103,6 +115,9 @@ section .rodata
     MAX_DELTA_DEG_RANGE: equ 120
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
+    format_d:   db "%d", 0
+    format_s:   db "%s", 0
+    format_f:   db "%f", 0
 
 section .data
     ;; init all "board" related vars: dronesArray, game params, target
@@ -596,6 +611,44 @@ init_co_routines:
     jmp drones_cors_init_loop
     end_drones_cors_init_loop:
     func_end
+
+main:
+    ;parse input
+    ;initDroneArray
+    ;init_target
+    ;init_cors
+    ; call scheduler?
+    ;end_game? (free?)
+    func_start
+    ;TODO: do we need space for this? sub     esp, 4
+    mov     eax, [ebp+8]                         ; argc
+    mov     ebx, [ebp+12]                        ; argv <N> <R> <K> <d> <seed>
+    add     ebx, 4                               ; skip first arg
+    parseArgInto Nval, format_d
+    parseArgInto Rval, format_d
+    parseArgInto Tval, format_d
+    parseArgInto Kval, format_d
+    parseArgInto Dval, format_f
+    parseArgInto seed, format_d
+    call initDronesArray
+    call init_target
+    call init_co_routines
+    mov [SPMAIN], esp
+    mov dword [currDrone], 0			; Curr drone will hold the first drone ID
+    mov ebx, [cors]						; Ebx is pointer to scheduler function
+    jmp do_resume
+
+    finish_main:
+        mov 	esp, [SPMAIN]
+        call    free_mem
+        pop     ebp             			; Restore caller state
+        ret
+
+free_mem:
+    func_start
+    func_end
+
+
 
 ; EBX is pointer to co-init structure of co-routine to be resumed
 ; CURR holds a pointer to co-init structure of the curent co-routine
