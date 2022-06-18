@@ -68,6 +68,7 @@ global cors
 global varA
 global varB
 global Debug
+global main
 
 global DRONE_STRUCT_XPOS_OFFSET
 global DRONE_STRUCT_YPOS_OFFSET
