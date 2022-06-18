@@ -87,8 +87,8 @@ global Rval
 global Tval
 global Dval
 global Kval
+global finish_main
 
-global _start
 
 section .rodata
     DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
@@ -153,6 +153,9 @@ section .bss
 section .text
 
 _start: ;TODO parse info in main func
+    jmp main
+
+
 ;; should get lower, upper bound, return a random between them
 generate_random_number:
     func_start                                               ; of random number
