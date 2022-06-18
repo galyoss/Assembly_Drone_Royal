@@ -76,7 +76,7 @@ global Kval
 
 global _start
 
-section .rodata:
+section .rodata
     DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
     DRONE_STRUCT_XPOS_OFFSET: equ 0
     DRONE_STRUCT_YPOS_OFFSET: equ 8
@@ -104,7 +104,7 @@ section .rodata:
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
 
-section .data:
+section .data
     ;; init all "board" related vars: dronesArray, game params, target
     ;; game initializtion: init schedueler, printer, terget
     ;; defining utility functions: random, rad->deg, ged->rad,
@@ -127,7 +127,13 @@ section .data:
     seed: dw 0
     Debug: db 1
 
-section .text:
+section .bss
+    CURR: resd 1    ;curr co routine
+    SPT: resd 1     ;curr stack pointer
+    SPMAIN: resd 1  ;main stack pointer
+
+
+section .text
 
 _start: ;TODO parse info in main func
 ;; should get lower, upper bound, return a random between them
@@ -525,6 +531,14 @@ init_co_routines:
     call calloc
     add esp, 8
     mov dword [cors+4], eax
+    mov [SPT], esp	               ; save ESP value
+    mov esp, [cors+4]               ; get initial ESP value – pointer to COi stack
+    mov eax, [cors]                 ;get initial EIP value – pointer to COi function
+    push eax                         ; push initial “return” address
+    pushfd                          ;push flags
+    pushad                          ; push registers
+    mov [cors+4], esp               ; save new SPi value
+    mov esp, [SPT]                  ;restore ESP value
 
     init_target_cor:
     mov dword [cors+8], run_target
@@ -533,6 +547,14 @@ init_co_routines:
     call calloc
     add esp, 8
     mov dword [cors+12], eax
+    mov [SPT], esp	               ; save ESP value
+    mov esp, [cors+12]               ; get initial ESP value – pointer to COi stack
+    mov eax, [cors+8]                 ;get initial EIP value – pointer to COi function
+    push eax                         ; push initial “return” address
+    pushfd                          ;push flags
+    pushad                          ; push registers
+    mov [cors+12], esp               ; save new SPi value
+    mov esp, [SPT]                  ;restore ESP value
 
     init_printer_cor:
     mov dword [cors+16], run_printer
@@ -541,6 +563,14 @@ init_co_routines:
     call calloc
     add esp, 8
     mov dword [cors+20], eax
+    mov [SPT], esp	               ; save ESP value
+    mov esp, [cors+20]               ; get initial ESP value – pointer to COi stack
+    mov eax, [cors+16]                 ;get initial EIP value – pointer to COi function
+    push eax                         ; push initial “return” address
+    pushfd                          ;push flags
+    pushad                          ; push registers
+    mov [cors+20], esp               ; save new SPi value
+    mov esp, [SPT]                  ;restore ESP value
 
     init_drones_cors:
     mov ebx, 3 ; our loop counter (cmp ebx with [N]+3)
@@ -555,6 +585,14 @@ init_co_routines:
     call calloc
     add esp, 8
     mov dword [cors+ebx*8+4], eax
+    mov [SPT], esp	               ; save ESP value
+    mov esp, [cors+ebx*8+4]               ; get initial ESP value – pointer to COi stack
+    mov eax, [cors+ebx*8]                 ;get initial EIP value – pointer to COi function
+    push eax                         ; push initial “return” address
+    pushfd                          ;push flags
+    pushad                          ; push registers
+    mov [cors+ebx*8+4], esp               ; save new SPi value
+    mov esp, [SPT]                  ;restore ESP value
     jmp drones_cors_init_loop
     end_drones_cors_init_loop:
     func_end
@@ -564,12 +602,12 @@ init_co_routines:
 resume:
 	pushfd					; Save state of caller
 	pushad
-	mov	edx, [cors]
-	mov	[edx+8], esp		; Save current SP
+	mov	edx, [CURR]
+	mov	[edx+4], esp		; Save current SP
 
 do_resume:
-	mov	esp, [ebx+8]  	; Load SP for resumed co-routine
-	mov	[cors], ebx
+	mov	esp, [ebx+4]  	; Load SP for resumed co-routine
+	mov	[CURR], ebx
 	popad					; Restore resumed co-routine state
 	popfd
 	ret                     ; "return" to resumed co-routine!
