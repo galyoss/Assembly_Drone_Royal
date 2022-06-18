@@ -351,7 +351,7 @@ initDronesArray:
         cmp ebx, dword [Nval]
         je end_init_drones_loop
         push 1
-        push DroneStructLen
+        push dword DroneStructLen
         call calloc
         add esp, 8
         mov dword [DronesArrayPointer+ebx*4], eax
