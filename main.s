@@ -549,7 +549,7 @@ init_co_routines:
     init_sched_cor:
     mov dword [cors], run_schedueler
     push 1
-    push CO_STK_SIZE
+    push dword CO_STK_SIZE
     call calloc
     add esp, 8
     mov dword [cors+4], eax
@@ -565,7 +565,7 @@ init_co_routines:
     init_target_cor:
     mov dword [cors+8], run_target
     push 1
-    push CO_STK_SIZE
+    push dword CO_STK_SIZE
     call calloc
     add esp, 8
     mov dword [cors+12], eax
@@ -581,7 +581,7 @@ init_co_routines:
     init_printer_cor:
     mov dword [cors+16], run_printer
     push 1
-    push CO_STK_SIZE
+    push dword CO_STK_SIZE
     call calloc
     add esp, 8
     mov dword [cors+20], eax
@@ -603,7 +603,7 @@ init_co_routines:
     je end_drones_cors_init_loop
     mov dword [cors+ebx*8], run_drone
     push 1
-    push CO_STK_SIZE
+    push dword CO_STK_SIZE
     call calloc
     add esp, 8
     mov dword [cors+ebx*8+4], eax
