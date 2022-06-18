@@ -386,7 +386,7 @@ init_drone_sturct:
 init_target:
 ; void func (target* in ebp+8)
     func_start
-    push TARGET_STRUCT_SIZE
+    push dword TARGET_STRUCT_SIZE
     push 1
     call calloc
     ; now eax holds the pointer
