@@ -216,7 +216,7 @@ generate_random_deg: ; initial degree, 0-360
     ; func ()-> random float between 0-360, in varA
     func_start
     pushad
-    push dword [MAX_DEGREE]
+    push dword MAX_DEGREE
     call get_random_scaled_number
     ;now varA holds a random between 0-MAX_DEGREE
     add esp, 4
@@ -227,7 +227,7 @@ generate_random_deg: ; initial degree, 0-360
 generate_random_delta_deg: ;delta degree, (-60)-(60)
     func_start
     pushad
-    push dword [MAX_DELTA_DEG_RANGE] ; ==120
+    push dword MAX_DELTA_DEG_RANGE ; ==120
     call get_random_scaled_number
     add esp, 4    
     popad
@@ -242,7 +242,7 @@ generate_random_delta_deg: ;delta degree, (-60)-(60)
 generate_random_delta_xy: ; delta dict, (-10)-(10)
     func_start
     pushad
-    push dword [MAX_DELTA_POS_RANGE] ; ==20
+    push dword MAX_DELTA_POS_RANGE ; ==20
     call get_random_scaled_number
     add esp, 4
     popad
@@ -413,7 +413,7 @@ move_target:
     fld qword [varA]
     fadd qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET]
     fstp qword [varA]
-    push dword [BOARD_SIZE]                      ; pushing board limits
+    push dword BOARD_SIZE                      ; pushing board limits
     call wrap              ; now var A hold wrap x
     mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_XPOS_OFFSET, varA    ;TODO see if this works
 
@@ -421,7 +421,7 @@ move_target:
     fld qword [varA]
     fadd qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET]
     fstp qword [varA]
-    push dword [BOARD_SIZE]                      ; pushing board limits
+    push dword BOARD_SIZE                      ; pushing board limits
     call wrap              ; now var A hold wrap y
     mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_YPOS_OFFSET, varA    ;TODO see if this works
 
@@ -436,7 +436,7 @@ update_drone_deg: ;(drone * ) -> null, update drone deg
     fld qword [varA]
     fadd qword [ebx + DRONE_STRUCT_HEADING_OFFSET]
     fstp qword [varA]
-    push dword [MAX_DEGREE]                      ; pushing board limits
+    push dword MAX_DEGREE                      ; pushing board limits
     call wrap                             ; now var A hold wrap x
     mov_mem_to_mem_qwords ebx+DRONE_STRUCT_HEADING_OFFSET, varA  ;TODO see if this works
 
