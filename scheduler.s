@@ -18,6 +18,8 @@
 %endmacro
 
 section	.rodata
+    winner_format: db "The Winner is drone: %d", 10, 0
+
 
 section .data
     curr_step: dd 0
@@ -43,6 +45,7 @@ section .text
     extern TARGET_STRUCT_YPOS_OFFSET
     extern TARGET_STRUCT_XPOS_OFFSET
     extern cors
+    extern finish_main
     global run_schedueler
 
 
@@ -113,6 +116,8 @@ run_schedueler:
 
                 dec dword[num_of_drones_left]
                 cmp dword[num_of_drones_left], 1
+                jmp finish_game
+                ;TODO: print num of winner drone
                 ;TODO JUMP EQUALS END GAME (print board, return to main, free all cors)
                 inc dword[drones_eliminated_this_round]
                 cmp dword[drones_eliminated_this_round], 1
@@ -136,8 +141,28 @@ run_schedueler:
         _loop_end:
             inc dword[curr_step]                 ; i++
             jmp _loop
+        func_end
 
-func_end
+
+finish_game:
+    ;find winner
+    mov ecx, 0                              ; loop counter
+    search_winner_loop:
+        mov ebx, dword [DronesArrayPointer+4*ecx]
+        cmp byte [ebx+DRONE_STRUCT_ACTIVE_OFFSET], 1
+        je end_search_winner_loop
+        inc ecx
+        jmp search_winner_loop
+    ;print winner drone
+
+    end_search_winner_loop:
+        ;now ecx is holding the numebr of the winner
+        push winner_format
+        push ecx
+        call printf
+        add esp, 8
+        jmp finish_main
+    ; call main_end
 
 ;TODO -> check if func start and func end are needed here, because resume and do resume take care of same things i think
 

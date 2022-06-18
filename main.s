@@ -45,6 +45,7 @@
 %endmacro
 extern calloc
 extern printf
+extern sscanf
 extern run_printer
 extern run_target
 extern run_drone
@@ -74,6 +75,7 @@ global DRONE_STRUCT_HEADING_OFFSET
 global DRONE_STRUCT_SPEED_OFFSET
 global DRONE_STRUCT_KILLS_OFFSET
 global DRONE_STRUCT_ACTIVE_OFFSET
+global DroneStructLen
 
 global TARGET_STRUCT_SIZE
 global TARGET_STRUCT_XPOS_OFFSET
@@ -444,6 +446,7 @@ move_drone:
     mov_mem_to_mem_qwords currAngleDeg, currDrone+DRONE_STRUCT_HEADING_OFFSET
     mov_mem_to_mem_qwords varA, currDrone+DRONE_STRUCT_SPEED_OFFSET
     call calc_delta_x
+    ;TODO: convert curr_drone from index to actual pointer
     ffree
     fld qword [varA] ; loading the delta
     fld qword [currDrone+DRONE_STRUCT_XPOS_OFFSET]
