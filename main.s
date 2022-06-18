@@ -392,6 +392,7 @@ init_target:
     ; now eax holds the pointer
     mov dword [target_pointer], eax
     call create_target
+    func_end
 
 
 create_target:
@@ -553,14 +554,14 @@ init_co_routines:
     call calloc
     add esp, 8
     mov dword [cors+4], eax
-    mov [SPT], esp	               ; save ESP value
+    mov [SPT], esp	                ; save ESP value
     mov esp, [cors+4]               ; get initial ESP value – pointer to COi stack
-    mov eax, [cors]                 ;get initial EIP value – pointer to COi function
-    push eax                         ; push initial “return” address
-    pushfd                          ;push flags
+    mov eax, [cors]                 ; get initial EIP value – pointer to COi function
+    push eax                        ; push initial “return” address
+    pushfd                          ; push flags
     pushad                          ; push registers
     mov [cors+4], esp               ; save new SPi value
-    mov esp, [SPT]                  ;restore ESP value
+    mov esp, [SPT]                  ; restore ESP value
 
     init_target_cor:
     mov dword [cors+8], run_target
@@ -615,6 +616,7 @@ init_co_routines:
     pushad                          ; push registers
     mov [cors+ebx*8+4], esp               ; save new SPi value
     mov esp, [SPT]                  ;restore ESP value
+    inc ebx
     jmp drones_cors_init_loop
     end_drones_cors_init_loop:
     func_end

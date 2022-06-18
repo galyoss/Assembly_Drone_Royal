@@ -167,4 +167,3 @@ finish_game:
 
 ;TODO -> check if func start and func end are needed here, because resume and do resume take care of same things i think
 
-
