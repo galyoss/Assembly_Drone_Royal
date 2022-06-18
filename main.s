@@ -229,7 +229,7 @@ generate_random_delta_deg: ;delta degree, (-60)-(60)
     pushad
     push dword [MAX_DELTA_DEG_RANGE] ; ==120
     call get_random_scaled_number
-    add esp, 4    
+    add esp, 4
     popad
     ffree
     fld qword [varA]
@@ -252,7 +252,7 @@ generate_random_delta_xy: ; delta dict, (-10)-(10)
     fisub dword [varB]
     fstp qword [varA]
     func_end
-    
+
 generate_random_position:
     ; func ()-> random float between 0-360, in varA
     func_start
@@ -279,7 +279,7 @@ generate_random_speed:
 convert_deg_to_rad:
     ; func(angle in deg(in currAngleDeg)) -> AngleinRad(in currAngleRad)
     func_start
-    finit 
+    finit
     fld qword [currAngleDeg]
     mov [varA], dword 0 ; TODO remove?
     mov [varA], dword 180
@@ -289,11 +289,11 @@ convert_deg_to_rad:
     fmul
     fstp qword [currAngleRad]
     func_end
-    
+
 ; TODO: maybe not necassary?
 convert_rad_to_deg:
     func_start
-    finit 
+    finit
     fld qword [Gamma]
     fldpi
     fdiv
@@ -335,7 +335,7 @@ calc_delta_y:
 initDronesArray:
     ;; calloc array, with N cells each 4bytes
     ;; set DronesArrayPointer to the return val of calloc
-    ;; for each call in array, create a new drone, 
+    ;; for each call in array, create a new drone,
     ;; Struct drone: 8 bytes Xpos, 8 bytes Ypos, 8 bytes Angle, 8 byte speed, byte isActive
 
     func_start
@@ -393,7 +393,7 @@ init_target:
     mov dword [target_pointer], eax
     call create_target
 
-    
+
 create_target:
     ; void func (), updated target_pointer->xpos=rnd, target_pointer->ypos=rnd, target_pointer->isdestroyed=0
     func_start
@@ -406,7 +406,7 @@ create_target:
 
 move_target:
     func_start
-    call generate_random_delta_xy       ;now var A hold delta x 
+    call generate_random_delta_xy       ;now var A hold delta x
     ffree
 
     ;moving x location
