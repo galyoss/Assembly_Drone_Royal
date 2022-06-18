@@ -46,6 +46,7 @@ section .text
     extern TARGET_STRUCT_XPOS_OFFSET
     extern cors
     extern finish_main
+    extern printf
     global run_schedueler
 
 
