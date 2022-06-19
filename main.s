@@ -127,7 +127,7 @@ section .data
     ;; game initializtion: init schedueler, printer, terget
     ;; defining utility functions: random, rad->deg, ged->rad,
     
-
+    target_pointer: dd 0
     Nval : dd 0
     Rval : dd 0
     Tval : dd 0
@@ -135,7 +135,6 @@ section .data
     Kval: dd 0
     DronesArrayPointer: dd 0
     currDrone: dd 0
-    target_pointer: dd 0
     currAngleDeg: dq 0
     currAngleRad: dq 0
     Gamma: dq 0
@@ -149,6 +148,7 @@ section .bss
     CURR: resd 1    ;curr co routine
     SPT: resd 1     ;curr stack pointer
     SPMAIN: resd 1  ;main stack pointer
+    ;target_pointer: resd 1
 
 
 section .text
@@ -193,6 +193,7 @@ generate_random_number:
         jmp calc_random
     end_calc_random:
     mov word[seed], ax      ;seed is now the new random number
+    popad
     func_end
 
 
@@ -384,7 +385,7 @@ init_drone_sturct:
     func_end
 
 init_target:
-; void func (target* in ebp+8)
+
     func_start
     push dword TARGET_STRUCT_SIZE
     push 1
@@ -398,11 +399,14 @@ init_target:
 create_target:
     ; void func (), updated target_pointer->xpos=rnd, target_pointer->ypos=rnd, target_pointer->isdestroyed=0
     func_start
+    pushad
     call generate_random_position
-    mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_XPOS_OFFSET, varA
+    mov esi, [target_pointer]
+    mov_mem_to_mem_qwords esi+TARGET_STRUCT_XPOS_OFFSET, varA
     call generate_random_position
-    mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_YPOS_OFFSET, varA
+    mov_mem_to_mem_qwords esi+TARGET_STRUCT_YPOS_OFFSET, varA
     mov byte [target_pointer+TARGET_STRUCT_IS_DESTROYED_OFFSET], 0
+    popad
     func_end
 
 move_target:

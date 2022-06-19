@@ -61,6 +61,17 @@ section	.rodata
 	float_format: db "%.2f", 0 			    ;2digit precision
     new_line_format: db 10, 0
     comma_format: db ",", 0
+    DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
+    DRONE_STRUCT_XPOS_OFFSET: equ 0
+    DRONE_STRUCT_YPOS_OFFSET: equ 8
+    DRONE_STRUCT_HEADING_OFFSET: equ 16
+    DRONE_STRUCT_SPEED_OFFSET: equ 24
+    DRONE_STRUCT_KILLS_OFFSET: equ 32
+    DRONE_STRUCT_ACTIVE_OFFSET: equ 36
+    TARGET_STRUCT_SIZE: equ 17
+    TARGET_STRUCT_XPOS_OFFSET: equ 0
+    TARGET_STRUCT_YPOS_OFFSET: equ 8
+    TARGET_STRUCT_IS_DESTROYED_OFFSET: equ 16
 section .data
     
 
@@ -71,14 +82,6 @@ section .text
     extern printf
     extern target_pointer
     extern DronesArrayPointer
-    extern DRONE_STRUCT_ACTIVE_OFFSET
-    extern DRONE_STRUCT_XPOS_OFFSET
-    extern DRONE_STRUCT_YPOS_OFFSET
-    extern DRONE_STRUCT_SPEED_OFFSET
-    extern DRONE_STRUCT_HEADING_OFFSET
-    extern DRONE_STRUCT_KILLS_OFFSET
-    extern TARGET_STRUCT_YPOS_OFFSET
-    extern TARGET_STRUCT_XPOS_OFFSET
     extern cors
     extern resume
     global run_printer
@@ -87,34 +90,53 @@ section .text
     run_printer:
         _print_target:
             mov ebx, target_pointer
-            print_float_2d [ebx + TARGET_STRUCT_XPOS_OFFSET] ;TODO, check if register is needed
+            mov ebx, [ebx]
+            print_float_2d ebx ;TODO, check if register is needed
             print_comma
-            print_float_2d [ebx + TARGET_STRUCT_YPOS_OFFSET]
+            mov ebx, target_pointer
+            mov ebx, [ebx]
+            add ebx, TARGET_STRUCT_YPOS_OFFSET
+            print_float_2d ebx
+            print_new_line
 
         xor ecx, ecx
         _print_drones_loop:
             cmp ecx, [Nval]            ;while i < N
             je _return_to_printer
-            mov ebx, [DronesArrayPointer + ecx * 4]     ; ebx = drone[i] pointer
-            inc ecx                                     ; i++
+            mov ebx, [DronesArrayPointer]
+            mov edi, ecx
+            shl edi, 2
+            add ebx, edi     ; ebx = drone[i] pointer
+            mov edi, ebx      ;curr drone *
+            inc ecx                                   ; i++
             cmp byte[ebx+DRONE_STRUCT_ACTIVE_OFFSET], 0 ; drone.isAlive()
             je _print_drones_loop
 
             print_decimal ecx                           ; drone print index starts at 1
             print_comma
-            print_float_2d [ebx+DRONE_STRUCT_XPOS_OFFSET]       ; TODO check if need qword or register
+            mov ebx, edi
+            add ebx, DRONE_STRUCT_XPOS_OFFSET
+            print_float_2d ebx     ; TODO check if need qword or register
             print_comma
-            print_float_2d [ebx+DRONE_STRUCT_YPOS_OFFSET]
+            mov ebx, edi
+            add ebx, DRONE_STRUCT_YPOS_OFFSET
+            print_float_2d ebx
             print_comma
-            print_float_2d [ebx+DRONE_STRUCT_SPEED_OFFSET]
+            mov ebx, edi
+            add ebx, DRONE_STRUCT_SPEED_OFFSET
+            print_float_2d ebx
             print_comma
-            print_float_2d [ebx+DRONE_STRUCT_HEADING_OFFSET]
+            mov ebx, edi
+            add ebx, DRONE_STRUCT_HEADING_OFFSET
+            print_float_2d ebx
             print_comma
-            print_decimal  [ebx+DRONE_STRUCT_KILLS_OFFSET]
+            mov ebx, edi
+            add ebx, DRONE_STRUCT_KILLS_OFFSET
+            print_decimal  ebx
             print_new_line
 
             jmp _print_drones_loop
 
         _return_to_printer:
-            mov ebx, dword[cors]     ; ebx = scheduler*
+            mov ebx, cors     ; ebx = scheduler*
             call resume

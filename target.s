@@ -65,5 +65,5 @@ section .text
             call create_target
 
         _return_to_scheduler:
-            mov ebx, dword[cors]     ; ebx = scheduler*
+            mov ebx, cors     ; ebx = scheduler*
             call resume

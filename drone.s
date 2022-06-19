@@ -67,5 +67,5 @@ section .text
         add dword[ebx + DRONE_STRUCT_KILLS_OFFSET], 1 ;INC DRONE KILLS, TODO: check if register is needed first
 
     _drone_end:
-        mov ebx, dword[cors]                    ;ebx = pointer to scheduler struct
+        mov ebx, cors                   ;ebx = pointer to scheduler struct
         call resume
