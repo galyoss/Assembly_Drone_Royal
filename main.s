@@ -176,14 +176,13 @@ get_random_scaled_number: ;(int limit) -> varA = scaled float
     ffree
     mov dword[varA], 0               ; clean varA
     mov dword[varA], eax              ; varA = random short
-    fld qword[varA]                 ; push varA
+    fld dword[varA]                 ; push varA
     mov dword[varB], MAX_SEED
     fidiv dword[varB]                 ;now float stack top is a number (0,1];TODO: check if not need f*i*div
     mov eax, dword[ebp+8]              ;eax holds limit
     mov dword [varB], eax
     fimul dword[varB]                ;now top of stack is the random dist
-    mov dword[varA], 0
-    fstp dword[varA]                 ;varA now holds the position
+    fstp qword[varA]                 ;varA now holds the position
     func_end
 
 generate_random_deg: ; initial degree, 0-360
