@@ -16,13 +16,13 @@
     div ebx       ; edx = %1 mod %2
 %endmacro
 
-;%1 = pointer to float to print    (TODO check if %1 + 4 is valid command)
-%macro print_float_2d 1
+%macro print_float 1
 	pushad
-    ; mov ebx, qword[%1]
-	; push dword [ebx]    ;pushes 32 bits (MSB)
-    ; push dword [ebx+4]   ;pushes 32 bits (LSB)
-    push dword %1
+	mov [float1], %1
+	fld dword [float1]
+    fstp qword [float2]
+	push dword [float2+4]  ;pushes 32 bits (MSB)
+    push dword [float2]    ;pushes 32 bits (LSB)
 	push float_format
 	call printf
 	add esp, 12
@@ -65,7 +65,9 @@ section	.rodata
 section .data
     
 
-section .bss
+section .bss				
+	float1:			resd 1
+	float2:		resq 1
     
 section .text
     extern Nval
@@ -102,13 +104,13 @@ section .text
 
             print_decimal ecx                           ; drone print index starts at 1
             print_comma
-            print_float_2d ebx+DRONE_STRUCT_XPOS_OFFSET       ; TODO check if need qword or register
+            print_float ebx+DRONE_STRUCT_XPOS_OFFSET       ; TODO check if need qword or register
             print_comma
-            print_float_2d ebx+DRONE_STRUCT_YPOS_OFFSET
+            print_float ebx+DRONE_STRUCT_YPOS_OFFSET
             print_comma
-            print_float_2d ebx+DRONE_STRUCT_SPEED_OFFSET
+            print_float ebx+DRONE_STRUCT_SPEED_OFFSET
             print_comma
-            print_float_2d ebx+DRONE_STRUCT_HEADING_OFFSET
+            print_float ebx+DRONE_STRUCT_HEADING_OFFSET
             print_comma
             print_decimal  [ebx+DRONE_STRUCT_KILLS_OFFSET]
             print_new_line
