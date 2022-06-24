@@ -109,7 +109,7 @@ section .text
             print_comma
             print_float_2d ebx+DRONE_STRUCT_HEADING_OFFSET
             print_comma
-            print_decimal  ebx+DRONE_STRUCT_KILLS_OFFSET
+            print_decimal  [ebx+DRONE_STRUCT_KILLS_OFFSET]
             print_new_line
 
             jmp _print_drones_loop
