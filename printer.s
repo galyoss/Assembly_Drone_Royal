@@ -31,7 +31,7 @@
 ;%1 = int to print
 %macro  print_decimal 1
     pushad
-    push dword [%1]
+    push dword %1
     push decimal_format
     call printf
     add esp, 8
@@ -101,7 +101,7 @@ section .text
 
             print_decimal ecx                           ; drone print index starts at 1
             print_comma
-            print_float_2d ebx+[DRONE_STRUCT_XPOS_OFFSET]       ; TODO check if need qword or register
+            print_float_2d ebx+DRONE_STRUCT_XPOS_OFFSET       ; TODO check if need qword or register
             print_comma
             print_float_2d ebx+[DRONE_STRUCT_YPOS_OFFSET]
             print_comma
