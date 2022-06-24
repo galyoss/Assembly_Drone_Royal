@@ -231,7 +231,7 @@ generate_random_position:
     ; func ()-> random float between 0-360, in varA
     func_start
     pushad
-    push dword [BOARD_SIZE] ;==100
+    push dword BOARD_SIZE ;==100
     call get_random_scaled_number
     ;now varA holds a random between 0-MAX_POS
     add esp, 4
@@ -242,7 +242,7 @@ generate_random_speed:
     ; func ()-> random float between 0-360, in varA
     func_start
     pushad
-    push dword [MAX_SPEED] ;==50
+    push dword MAX_SPEED ;==50
     call get_random_scaled_number
     ;now varA holds a random between 0-MAX_POS
     add esp, 4
@@ -264,19 +264,19 @@ convert_deg_to_rad:
     fstp qword [currAngleRad]
     func_end
     
-; TODO: maybe not necassary?
-convert_rad_to_deg:
-    func_start
-    finit 
-    fld qword [Gamma]
-    fldpi
-    fdiv
-    mov [varA], dword 0
-    mov [varA], dword 180
-    fild dword [varA]
-    fmul
-    fstp qword [Gamma]
-    func_end
+; ; TODO: maybe not necassary?
+; convert_rad_to_deg:
+;     func_start
+;     finit 
+;     fld qword [Gamma]
+;     fldpi
+;     fdiv
+;     mov [varA], dword 0
+;     mov [varA], dword 180
+;     fild dword [varA]
+;     fmul
+;     fstp qword [Gamma]
+;     func_end
 
 calc_delta_x:
     ; README: before calling this func, drone must put it's speed in varA, heading angle in currAngleDeg
