@@ -175,7 +175,7 @@ get_random_scaled_number: ;(int limit) -> varA = scaled float
     call generate_random_number     ;now ax and seed hold random short
     ffree
     mov dword[varA], 0               ; clean varA
-    mov qword[varA], ax              ; varA = random short
+    mov dword[varA], eax              ; varA = random short
     fld qword[varA]                 ; push varA
     mov dword[varB], MAX_SEED
     fidiv dword[varB]                 ;now float stack top is a number (0,1];TODO: check if not need f*i*div
