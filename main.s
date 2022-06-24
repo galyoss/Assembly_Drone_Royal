@@ -190,7 +190,7 @@ generate_random_deg: ; initial degree, 0-360
     ; func ()-> random float between 0-360, in varA
     func_start
     pushad
-    push dword [MAX_DEGREE]
+    push dword MAX_DEGREE
     call get_random_scaled_number
     ;now varA holds a random between 0-MAX_DEGREE
     add esp, 4
