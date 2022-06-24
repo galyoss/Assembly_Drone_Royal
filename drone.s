@@ -59,25 +59,15 @@ section .bss
     
 section .text
     extern Nval
+    extern Kval
     extern move_drone
     extern mayDestroy
     extern resume
     extern target_pointer
-    extern TARGET_STRUCT_IS_DESTROYED_OFFSET
-    extern DRONE_STRUCT_KILLS_OFFSET
     extern DronesArrayPointer
     extern currDrone
     extern cors
     global run_drone
-
-scheduler.o:scheduler.s:70: undefined reference to `Kval'
-scheduler.o:scheduler.s:84: undefined reference to `DRONE_STRUCT_ACTIVE'
-scheduler.o:scheduler.s:99: undefined reference to `DRONE_STRUCT_ACTIVE_OFFSET'
-scheduler.o:scheduler.s:101: undefined reference to `DRONE_STRUCT_KILLS_OFFSET'
-scheduler.o:scheduler.s:103: undefined reference to `DRONE_STRUCT_KILLS_OFFSET'
-scheduler.o:scheduler.s:111: undefined reference to `DRONE_STRUCT_ACTIVE_OFFSET'
-
-
 
     ; N<int> – number of drones
     ; R<int> - number of full scheduler cycles between each elimination
