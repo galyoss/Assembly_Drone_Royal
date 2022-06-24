@@ -99,8 +99,8 @@ section .text
             je _return_to_printer
             ;mov ebx, [DronesArrayPointer] + ecx * 4]     ; ebx = drone[i] pointer
             mov ebx, [DronesArrayPointer]
-            add ebx, ecx*4
-            inc ecx                                     ; i++
+            add ebx, ecx
+            add ecx, 4                                     ; i++
             cmp byte[ebx+DRONE_STRUCT_ACTIVE_OFFSET], 0 ; drone.isAlive()
             je _print_drones_loop
 
