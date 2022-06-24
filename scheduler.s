@@ -112,10 +112,10 @@ run_schedueler:
                 dec dword [num_of_drones_left]
                 cmp dword [num_of_drones_left], 1
                 ;TODO JUMP EQUALS END GAME (print board, return to main, free all cors)
-                inc [drones_eliminated_this_round]
-                cmp [drones_eliminated_this_round], 1
+                inc dword [drones_eliminated_this_round]
+                cmp dword [drones_eliminated_this_round], 1
                 je _eliminate
-                mov [drones_eliminated_this_round], 0
+                mov dword [drones_eliminated_this_round], 0
 
             jmp _check_print
         _print_board:
