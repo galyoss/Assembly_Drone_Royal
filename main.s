@@ -108,6 +108,7 @@ section .data
     global varA
     global varB
     global Debug
+    global _start
     extern printf
     extern sscanf
 

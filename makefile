@@ -7,7 +7,7 @@ ass3: main.o drone.o printer.o scheduler.o target.o
 
 
 main.o: main.s
-	nasm -g -f elf -w+all -o main.o main.s
+	nasm -g -f elf -c -w+all -o main.o main.s
 target.o: target.s
 	nasm -g -f elf -w+all -o target.o target.s
 drone.o: drone.s
