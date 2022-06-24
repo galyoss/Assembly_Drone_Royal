@@ -42,6 +42,7 @@ section .text
     extern DRONE_STRUCT_KILLS_OFFSET
     extern DronesArrayPointer
     extern DRONE_STRUCT_ACTIVE_OFFSET
+    global run_schedueler
 
 
 
