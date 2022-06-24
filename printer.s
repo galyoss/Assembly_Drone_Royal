@@ -106,19 +106,19 @@ section .text
 
             print_decimal ecx                           ; drone print index starts at 1
             print_comma
-            add ebx, DRONE_STRUCT_XPOS_OFFSET
-            print_float ebx       ; TODO check if need qword or register
+            print_float ebx       ; print ebx+0
             print_comma
-            add ebx, DRONE_STRUCT_YPOS_OFFSET
-            print_float ebx
+            add ebx, 8
+            print_float ebx         ;print ebx+8
             print_comma
-            add ebx, DRONE_STRUCT_SPEED_OFFSET-DRONE_STRUCT_YPOS_OFFSET
-            print_float ebx
+            add ebx, 8             
+            print_float ebx         ;print ebx+16
             print_comma
-            add ebx, DRONE_STRUCT_HEADING_OFFSET-DRONE_STRUCT_SPEED_OFFSET
-            print_float ebx
+            add ebx, 8                
+            print_float ebx          ;print ebx+24
             print_comma
-            print_decimal  [ebx+DRONE_STRUCT_KILLS_OFFSET]
+            add ebx, 8
+            print_decimal  [ebx]
             print_new_line
 
             jmp _print_drones_loop
