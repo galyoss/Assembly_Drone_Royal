@@ -175,8 +175,8 @@ get_random_scaled_number: ;(int limit) -> varA = scaled float
     call generate_random_number     ;now ax and seed hold random short
     ffree
     ; mov dword[varA], 0               ; clean varA
-    ;mov dword[varA], eax              ; varA = random short
-    fld dword [eax]                      ; push float
+    mov dword[varA], eax              ; varA = random short
+    fld [varA]                         ; push float
     mov dword [ebx], 0xffff              ; max int for 16bit
     fidiv dword [ebx]                      ; number/ffff  mov eax, dword[ebp+8]              ;eax holds limit
     mov eax, dword [ebp+8]
