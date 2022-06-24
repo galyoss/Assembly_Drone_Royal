@@ -62,7 +62,6 @@ section .text
     extern create_target
     extern cors
     extern resume
-    extern TARGET_STRUCT_IS_DESTROYED_OFFSET
     global run_target
 
 
