@@ -1,13 +1,13 @@
 all: ass3
 
 
-ass3: ass3.o drone.o printer.o scheduler.o target.o
-	gcc -m32 -g -Wall -o ass3 drone.o ass3.o printer.o scheduler.o target.o
+ass3: main.o drone.o printer.o scheduler.o target.o
+	gcc -m32 -g -Wall -o ass3 drone.o main.o printer.o scheduler.o target.o
 	rm *.o
 
 
-ass3.o: main.s
-	nasm -g -f elf -w+all -o ass3.o main.s
+main.o: main.s
+	nasm -g -f elf -w+all -o main.o main.s
 target.o: target.s
 	nasm -g -f elf -w+all -o target.o target.s
 drone.o: drone.s
