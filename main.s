@@ -73,6 +73,7 @@ section .rodata
     MAX_ANGLE_DELTA_LIM: equ 60
     MIN_ANGLE_DELTA_LIM: equ -60
     BOARD_SIZE: equ 100
+    format_d:   db "%d", 0
     MAX_DELTA_DEG_RANGE: equ 120
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
@@ -105,10 +106,13 @@ section .data
     global varA
     global varB
     global Debug
+    extern printf
+    extern sscanf
 
     Nval : dd 0
     Rval : dd 0
     Tval : dd 0
+    Kval: dd 0
     Dval : dd 0
     DronesArrayPointer: dd 0
     currDrone: dd 0
