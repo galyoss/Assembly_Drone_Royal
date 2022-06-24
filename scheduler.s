@@ -111,7 +111,7 @@ run_schedueler:
         mov dword[currDrone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
         add ebx, dword[edx * 4]          ;now ebx points to curr drone
-        cmp byte [ebx + DRONE_STRUCT_ACTIVE], 1
+        cmp byte [ebx + DRONE_STRUCT_ACTIVE_OFFSET], 1
         je _call_drone_cor
         jmp _loop_end
 
