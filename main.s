@@ -174,7 +174,7 @@ get_random_scaled_number: ;(int limit) -> varA = scaled float
     func_start
     call generate_random_number     ;now ax and seed hold random short
     ffree
-	mov ax, [lfsr]
+	mov ax, [seed]
 	ffree
 	mov dword [varA], 0
 	mov [varA], ax
