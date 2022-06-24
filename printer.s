@@ -109,11 +109,14 @@ section .text
             add ebx, DRONE_STRUCT_XPOS_OFFSET
             print_float ebx       ; TODO check if need qword or register
             print_comma
-            print_float ebx+DRONE_STRUCT_YPOS_OFFSET
+            add ebx, DRONE_STRUCT_YPOS_OFFSET
+            print_float ebx
             print_comma
-            print_float ebx+DRONE_STRUCT_SPEED_OFFSET
+            add ebx, DRONE_STRUCT_SPEED_OFFSET-DRONE_STRUCT_YPOS_OFFSET
+            print_float ebx
             print_comma
-            print_float ebx+DRONE_STRUCT_HEADING_OFFSET
+            add ebx, DRONE_STRUCT_HEADING_OFFSET-DRONE_STRUCT_SPEED_OFFSET
+            print_float ebx
             print_comma
             print_decimal  [ebx+DRONE_STRUCT_KILLS_OFFSET]
             print_new_line
