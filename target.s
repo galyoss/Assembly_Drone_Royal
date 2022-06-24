@@ -27,7 +27,12 @@ section .data
 section .bss
     
 section .text
-    extern N
+    extern Nval
+    extern target_pointer
+    extern move_target
+    extern create_target
+    extern cors
+    extern resume
 
 
 
