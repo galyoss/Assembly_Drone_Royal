@@ -46,7 +46,9 @@ section .text
 
 
     run_target:
-        cmp byte[target_pointer + TARGET_STRUCT_IS_DESTROYED_OFFSET], 1
+        mov esi, [target_pointer]
+        add esi, TARGET_STRUCT_IS_DESTROYED_OFFSET
+        cmp byte[esi], 1
         je _create_target
 
         _move_target:
