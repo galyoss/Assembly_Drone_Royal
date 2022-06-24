@@ -32,6 +32,15 @@ section .text
     extern Kval
     extern Tval
     extern resume
+    extern currDrone
+    extern DronesArrayPointer
+    extern DRONE_STRUCT_ACTIVE
+    extern DronesArrayPointer
+    extern DRONE_STRUCT_ACTIVE_OFFSET
+    extern DRONE_STRUCT_KILLS_OFFSET
+    extern DRONE_STRUCT_KILLS_OFFSET
+    extern DronesArrayPointer
+    extern DRONE_STRUCT_ACTIVE_OFFSET
 
 
 
@@ -45,7 +54,7 @@ section .text
 run_schedueler:
     func_start
     mov dword[curr_step], 0
-    mov ebx, dword[N]
+    mov ebx, dword[Nval]
     mov dword[num_of_drones_left], ebx 
 
     _loop: 
