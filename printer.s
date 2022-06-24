@@ -103,14 +103,6 @@ section .text
     extern printf
     extern target_pointer
     extern DronesArrayPointer
-    extern DRONE_STRUCT_ACTIVE_OFFSET
-    extern DRONE_STRUCT_XPOS_OFFSET
-    extern DRONE_STRUCT_YPOS_OFFSET
-    extern DRONE_STRUCT_SPEED_OFFSET
-    extern DRONE_STRUCT_HEADING_OFFSET
-    extern DRONE_STRUCT_KILLS_OFFSET
-    extern TARGET_STRUCT_YPOS_OFFSET
-    extern TARGET_STRUCT_XPOS_OFFSET
     extern cors
     extern resume
     global run_printer
