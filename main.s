@@ -382,7 +382,7 @@ create_target:
     mov_mem_to_mem_qwords esi+TARGET_STRUCT_XPOS_OFFSET, varA
     call generate_random_position
     mov_mem_to_mem_qwords esi+TARGET_STRUCT_YPOS_OFFSET, varA
-    mov byte esi+TARGET_STRUCT_IS_DESTROYED_OFFSET, 0
+    mov byte [esi+TARGET_STRUCT_IS_DESTROYED_OFFSET], 0
     func_end
 
 move_target:
