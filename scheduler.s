@@ -51,6 +51,7 @@ string_format: db "%s", 10, 0
     MAX_DELTA_DEG_RANGE: equ 120
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
+    loop_sched_format: db "looping sched", 10, 0
 
 
 section .data
@@ -90,6 +91,9 @@ run_schedueler:
     mov dword[num_of_drones_left], ebx 
 
     _loop: 
+        push loop_sched_format
+        call printf
+        add esp, 4
         ;checking if elimination is next
         modulu curr_step, Rval    ;now edx hold curr_step%R
         cmp edx, 0
