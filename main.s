@@ -109,7 +109,6 @@ section .data
     global Debug
     extern printf
     extern sscanf
-    global TARGET_STRUCT_IS_DESTROYED_OFFSET
 
     Nval : dd 0
     Rval : dd 0
