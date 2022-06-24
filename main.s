@@ -551,3 +551,6 @@ do_resume:
 	popfd
 	ret                     ; "return" to resumed co-routine!
 
+
+_start:
+    
