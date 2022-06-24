@@ -174,15 +174,21 @@ get_random_scaled_number: ;(int limit) -> varA = scaled float
     func_start
     call generate_random_number     ;now ax and seed hold random short
     ffree
-    mov dword[varA], 0               ; clean varA
-    mov word[varA], ax              ; varA = random short
-    fld dword [varA]                         ; push float
-    mov dword [varB], 0xffff              ; max int for 16bit
-    fidiv dword [varB]                      ; number/ffff  mov eax, dword[ebp+8]              ;eax holds limit
-    mov eax, dword [ebp+8]
-    mov dword [varB], eax
-    fimul dword[varB]                ;now top of stack is the random dist
-    fst qword[varA]                 ;varA now holds the position
+	mov ax, [lfsr]
+	ffree
+	mov dword [varA], 0
+	mov [varA], ax
+	fld dword [varA]			; load x
+	
+	mov dword [varB], 65535		; MAXSHORT
+	fdiv dword [varB]			; getting x / MAXSHORT
+	
+	mov eax, [ebp+8]
+	mov dword [varA], eax		; range
+	fimul dword [varA]			; (x / MAXINT) * 100
+	
+	mov dword [varA], 0
+	fstp dword [varA]			; var1 hold the ans
     func_end
 
 generate_random_deg: ; initial degree, 0-360
