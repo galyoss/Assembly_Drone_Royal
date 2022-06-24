@@ -80,7 +80,7 @@ run_schedueler:
         mov dword[currDrone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
         add ebx, dword[edx * 4]          ;now ebx points to curr drone
-        cmp [ebx + DRONE_STRUCT_ACTIVE], 1
+        cmp byte [ebx + DRONE_STRUCT_ACTIVE], 1
         je _call_drone_cor
         jmp _loop_end
 
@@ -109,8 +109,8 @@ run_schedueler:
                 mov eax, dword[DronesArrayPointer + edx*4]           ;eax = loser drone*
                 mov byte[eax+DRONE_STRUCT_ACTIVE_OFFSET], 0         ;loser was eliminated
 
-                dec [num_of_drones_left]
-                cmp [num_of_drones_left], 1
+                dec dword [num_of_drones_left]
+                cmp dword [num_of_drones_left], 1
                 ;TODO JUMP EQUALS END GAME (print board, return to main, free all cors)
                 inc [drones_eliminated_this_round]
                 cmp [drones_eliminated_this_round], 1
