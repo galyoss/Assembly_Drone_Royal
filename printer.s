@@ -19,9 +19,10 @@
 ;%1 = pointer to float to print    (TODO check if %1 + 4 is valid command)
 %macro print_float_2d 1
 	pushad
-    mov ebx, qword[%1]
-	push dword [ebx]    ;pushes 32 bits (MSB)
-    push dword [ebx+4]   ;pushes 32 bits (LSB)
+    ; mov ebx, qword[%1]
+	; push dword [ebx]    ;pushes 32 bits (MSB)
+    ; push dword [ebx+4]   ;pushes 32 bits (LSB)
+    push dword %1
 	push float_format
 	call printf
 	add esp, 12
