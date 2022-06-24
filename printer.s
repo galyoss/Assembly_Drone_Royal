@@ -97,14 +97,17 @@ section .text
         _print_drones_loop:
             cmp ecx, [Nval]            ;while i < N
             je _return_to_printer
-            mov ebx, [DronesArrayPointer + ecx * 4]     ; ebx = drone[i] pointer
+            ;mov ebx, [DronesArrayPointer] + ecx * 4]     ; ebx = drone[i] pointer
+            mov ebx, [DronesArrayPointer]
+            add ebx, ecx*4
             inc ecx                                     ; i++
             cmp byte[ebx+DRONE_STRUCT_ACTIVE_OFFSET], 0 ; drone.isAlive()
             je _print_drones_loop
 
             print_decimal ecx                           ; drone print index starts at 1
             print_comma
-            print_float ebx+DRONE_STRUCT_XPOS_OFFSET       ; TODO check if need qword or register
+            add ebx, DRONE_STRUCT_XPOS_OFFSET
+            print_float ebx       ; TODO check if need qword or register
             print_comma
             print_float ebx+DRONE_STRUCT_YPOS_OFFSET
             print_comma
