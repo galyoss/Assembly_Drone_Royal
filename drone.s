@@ -39,6 +39,7 @@ section .text
     extern DronesArrayPointer
     extern currDrone
     extern cors
+    global run_drone
 
 
 
