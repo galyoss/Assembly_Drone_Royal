@@ -25,6 +25,18 @@
     pop edx
 %endmacro
 
+
+%macro  parseArgInto 2
+    pushad
+    push    %1
+    push    %2
+    push    dword[ebx]
+    call    sscanf
+    add     esp, 12
+    popad
+    add     ebx, 4
+%endmacro
+
 ; מי שמאמין לא מתעד
 %macro func_end 0
     mov esp, ebp
@@ -552,5 +564,42 @@ do_resume:
 	ret                     ; "return" to resumed co-routine!
 
 
-_start:
-    
+_start: ;TODO parse info in main func
+    jmp main
+
+
+main:
+    ;parse input
+    ;initDroneArray
+    ;init_target
+    ;init_cors
+    ; call scheduler?
+    ;end_game? (free?)
+    func_start
+    ;TODO: do we need space for this? sub     esp, 4
+    mov     eax, [ebp+8]                         ; argc
+    mov     ebx, [ebp+12]                        ; argv <N> <R> <K> <d> <seed>
+    add     ebx, 4                               ; skip first arg
+    parseArgInto Nval, format_d
+    parseArgInto Rval, format_d
+    parseArgInto Tval, format_d
+    parseArgInto Kval, format_d
+    parseArgInto Dval, format_f
+    parseArgInto seed, format_d
+    call initDronesArray
+    call init_target
+    call init_co_routines
+    mov [SPMAIN], esp
+    mov dword [currDrone], 0			; Curr drone will hold the first drone ID
+    mov ebx, cors						; Ebx is pointer to scheduler function
+    jmp do_resume
+
+    finish_main:
+        mov 	esp, [SPMAIN]
+        call    free_mem
+        pop     ebp             			; Restore caller state
+        ret
+
+free_mem:
+    func_start
+    func_end
