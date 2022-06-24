@@ -132,7 +132,7 @@ run_schedueler:
             mov ebx, [cors + edx*8]         ; size of cors struct is 8, now ebx holds pointer to curr drone coroutine
             call resume                     ; resume curr drone
         _loop_end:
-            inc [curr_step]                 ; i++
+            inc dword [curr_step]                 ; i++
             jmp _loop
 
 func_end
