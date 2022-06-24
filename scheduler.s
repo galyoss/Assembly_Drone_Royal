@@ -50,7 +50,7 @@ run_schedueler:
 
     _loop: 
         ;checking if elimination is next
-        modulu dword[curr_step], dword[Rval]    ;now edx hold curr_step%R
+        modulu curr_step, Rval    ;now edx hold curr_step%R
         cmp edx, 0
         je _eliminate
 
