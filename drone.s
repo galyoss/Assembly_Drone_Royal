@@ -58,8 +58,8 @@ section .text
         ;may destroy = true
         push ecx
         mov ecx, target_pointer
-        add ecx, [TARGET_STRUCT_IS_DESTROYED_OFFSET]
-        mov ecx, 1     ;set target to destroyed, TODO check if need to use register first
+        add ecx, TARGET_STRUCT_IS_DESTROYED_OFFSET
+        mov [ecx], 1     ;set target to destroyed, TODO check if need to use register first
         mov ebx, dword[DronesArrayPointer]
         mov ecx, [currDrone]
         add edx, [currDrone]
