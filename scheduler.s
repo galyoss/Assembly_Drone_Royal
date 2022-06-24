@@ -56,17 +56,17 @@ run_schedueler:
 
         ;checking if print is next
         _check_print: 
-        modulu dword[curr_step], dword[Kval]    ;now edx hold curr_step%K
+        modulu curr_step, Kval    ;now edx hold curr_step%K
         cmp edx, 0
         je _print_board
 
         _check_move_target:
-        modulu dword[curr_step], dword[Tval]    ;now edx hold curr_step%T
+        modulu curr_step, Tval    ;now edx hold curr_step%T
         cmp edx, 0
         je _move_target
 
         _check_drone_alive:
-        modulu dword[curr_step], dword[Nval]    ;now edx hold curr_step%R
+        modulu curr_step, Nval    ;now edx hold curr_step%R
         mov dword[currDrone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
         add ebx, dword[edx * 4]          ;now ebx points to curr drone
