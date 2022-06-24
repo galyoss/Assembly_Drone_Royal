@@ -67,6 +67,7 @@ section .text
     extern Kval
     extern Tval
     extern resume
+    extern printf
     extern currDrone
     extern cors
     extern DronesArrayPointer
