@@ -378,10 +378,11 @@ create_target:
     ; void func (), updated target_pointer->xpos=rnd, target_pointer->ypos=rnd, target_pointer->isdestroyed=0
     func_start
     call generate_random_position
-    mov_mem_to_mem_qwords [target_pointer]+TARGET_STRUCT_XPOS_OFFSET, varA
+    mov esi, [target_pointer]
+    mov_mem_to_mem_qwords esi+TARGET_STRUCT_XPOS_OFFSET, varA
     call generate_random_position
-    mov_mem_to_mem_qwords [target_pointer]+TARGET_STRUCT_YPOS_OFFSET, varA
-    mov byte [target_pointer]+TARGET_STRUCT_IS_DESTROYED_OFFSET, 0
+    mov_mem_to_mem_qwords esi+TARGET_STRUCT_YPOS_OFFSET, varA
+    mov byte esi+TARGET_STRUCT_IS_DESTROYED_OFFSET, 0
     func_end
 
 move_target:
