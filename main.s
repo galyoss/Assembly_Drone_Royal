@@ -44,7 +44,12 @@
     ret
 %endmacro
 
-section .rodata:
+section .bss
+    CURR: resd 1    ;curr co routine
+    SPT: resd 1     ;curr stack pointer
+    SPMAIN: resd 1  ;main stack pointer
+
+section .rodata
     DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
     DRONE_STRUCT_XPOS_OFFSET: equ 0
     DRONE_STRUCT_YPOS_OFFSET: equ 8
@@ -72,7 +77,7 @@ section .rodata:
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
 
-section .data:
+section .data
     ;; init all "board" related vars: dronesArray, game params, target
     ;; game initializtion: init schedueler, printer, terget
     ;; defining utility functions: random, rad->deg, ged->rad,
@@ -117,7 +122,7 @@ section .data:
     seed: dw 0
     Debug: db 1
 
-section .text:
+section .text
 
 ;; should get lower, upper bound, return a random between them
 generate_random_number:
