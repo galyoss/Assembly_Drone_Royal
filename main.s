@@ -108,7 +108,7 @@ section .data
     global varA
     global varB
     global Debug
-    global _start
+    global main
     extern printf
     extern sscanf
 
@@ -574,11 +574,6 @@ do_resume:
 	popad					; Restore resumed co-routine state
 	popfd
 	ret                     ; "return" to resumed co-routine!
-
-
-_start: ;TODO parse info in main func
-    jmp main
-
 
 main:
     ;parse input
