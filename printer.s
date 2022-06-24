@@ -89,9 +89,9 @@ section .text
 
     run_printer:
         _print_target:
-            print_float_2d target_pointer ;TODO, check if register is needed
+            print_float target_pointer ;TODO, check if register is needed
             print_comma
-            print_float_2d target_pointer + 8
+            print_float target_pointer + 8
 
         xor ecx, ecx
         _print_drones_loop:
