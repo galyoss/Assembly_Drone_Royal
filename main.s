@@ -372,6 +372,7 @@ init_target:
     ; now eax holds the pointer
     mov dword [target_pointer], eax
     call create_target
+    func_end
 
     
 create_target:
