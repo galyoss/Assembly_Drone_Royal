@@ -33,6 +33,7 @@ section .text
     extern Tval
     extern resume
     extern currDrone
+    extern cors
     extern DronesArrayPointer
     extern DRONE_STRUCT_ACTIVE
     extern DronesArrayPointer
