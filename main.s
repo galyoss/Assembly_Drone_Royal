@@ -368,6 +368,7 @@ init_target:
     push TARGET_STRUCT_SIZE
     push 1
     call calloc
+    add esp, 8
     ; now eax holds the pointer
     mov dword [target_pointer], eax
     call create_target
