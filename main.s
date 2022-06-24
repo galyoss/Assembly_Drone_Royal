@@ -176,9 +176,9 @@ get_random_scaled_number: ;(int limit) -> varA = scaled float
     ffree
     mov dword[varA], 0               ; clean varA
     mov word[varA], ax              ; varA = random short
-    fld word [varA]                         ; push float
-    mov dword [ebx], 0xffff              ; max int for 16bit
-    fidiv dword [ebx]                      ; number/ffff  mov eax, dword[ebp+8]              ;eax holds limit
+    fld dword [varA]                         ; push float
+    mov dword [varB], 65535              ; max int for 16bit
+    fidiv dword [varB]                      ; number/ffff  mov eax, dword[ebp+8]              ;eax holds limit
     mov eax, dword [ebp+8]
     mov dword [varB], eax
     fimul dword[varB]                ;now top of stack is the random dist
