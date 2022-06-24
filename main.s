@@ -100,6 +100,7 @@ section .data
     global Rval
     global Tval
     global Dval
+    global Kval
     global DronesArrayPointer
     global currDrone
     global target_pointer
