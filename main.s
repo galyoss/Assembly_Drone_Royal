@@ -546,7 +546,7 @@ allocate_cors:
         push edx
         push ebx
         push ecx
-        push dword %1
+        push dword edx
         call malloc
         add esp,4
         pop ecx
