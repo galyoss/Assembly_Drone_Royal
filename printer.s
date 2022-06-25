@@ -104,16 +104,12 @@ section .text
         .print_target:
             pushad
             mov eax, [target_pointer]
-            sub esp,8           ;make 8 bytes for target x in stack
-            mov_mem_to_mem_qwords esp-8, target_pointer+TARGET_STRUCT_XPOS_OFFSET
-
-            fld qword [eax+TARGET_STRUCT_YPOS_OFFSET]
-            fstp qword [esp]
-            sub esp,8             ;make 8 bytes for target y in stack
-
+            push eax
+            add eax, 8
+            push eax
             push target_string_format
             call printf
-            add esp,20
+            add esp,12
             popad
 
         .drone_printer_loop:
