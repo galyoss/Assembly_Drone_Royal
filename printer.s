@@ -123,6 +123,7 @@ section .text
             shl ebx, 2
             add eax, ebx
             shr ebx, 2
+            mov eax, [eax]
 
             cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
             je .dont_print_drone
