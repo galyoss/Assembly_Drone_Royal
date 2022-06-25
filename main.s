@@ -20,7 +20,7 @@
     push edx
     finit
     fld [%2]
-    fstp %1
+    fstp [%1]
     pop edx
 %endmacro
 
