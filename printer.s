@@ -146,7 +146,9 @@ section .text
             fld qword [eax+DRONE_STRUCT_XPOS_OFFSET]
             fstp qword [esp]
             
+            inc ebx
             push ebx
+            dec ebx
 
             push drone_info_line_format
             
