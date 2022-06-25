@@ -105,7 +105,7 @@ section .text
             pushad
             mov eax, [target_pointer]
             sub esp,8           ;make 8 bytes for target x in stack
-            mov_mem_to_mem_qwords esp, target_pointer+TARGET_STRUCT_XPOS_OFFSET
+            mov_mem_to_mem_qwords esp-8, target_pointer+TARGET_STRUCT_XPOS_OFFSET
 
             fld qword [eax+TARGET_STRUCT_YPOS_OFFSET]
             fstp qword [esp]
