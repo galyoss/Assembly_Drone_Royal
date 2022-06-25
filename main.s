@@ -25,18 +25,17 @@
     pop edx
 %endmacro
 
-%macro calloc_macro 1
+%macro my_malloc 1
+        push edx
         push ebx
         push ecx
-        push edx
         push dword %1
-        push dword 1
-        call calloc
-        add esp, 8
-        pop edx
+        call malloc
+        add esp,4
         pop ecx
         pop ebx
-%endmacro
+        pop edx
+    %endmacro
 
 
 %macro  parseArgInto 2
@@ -543,15 +542,7 @@ allocate_cors:
         mov edx,dword [Nval]            ;set edx with num of drones 
         add edx, 3                      ;add to edx num of 3 additional cors (print, sched, target)
         shl edx,3                       ;mult by 8, size of each cors struct size
-        push edx
-        push ebx
-        push ecx
-        push dword edx
-        call malloc
-        add esp,4
-        pop ecx
-        pop ebx
-        pop edx
+        my_malloc edx
         mov dword [cors],eax ;moving pointer to allocated array into the CORS label
         pushad
         mov ebx,dword [cors]
@@ -563,7 +554,7 @@ allocate_cors:
             
             mov dword [ebx+CODEP+8*ecx], run_drone
             
-            calloc_macro STKSIZE
+            my_malloc STKSIZE
             add eax,STKSIZE
             
             mov dword [ebx+SPP+8*ecx],eax
@@ -578,21 +569,21 @@ allocate_cors:
         dec edx             ;go to the last 'index' in cors array
         mov dword [sched_co_index], edx
         mov dword [ebx+8*edx],run_schedueler
-        calloc_macro STKSIZE
+        my_malloc STKSIZE
         add eax,STKSIZE
         mov dword [ebx+4+8*edx],eax
         
         dec edx
         mov dword [printer_co_index], edx
         mov dword [ebx+8*edx],run_printer
-        calloc_macro STKSIZE
+        my_malloc STKSIZE
         add eax,STKSIZE
         mov dword [ebx+4+8*edx],eax
         
         dec edx
         mov dword [target_co_index],edx
         mov dword [ebx+8*edx],run_target
-        calloc_macro STKSIZE
+        my_malloc STKSIZE
         add eax,STKSIZE
         mov dword [ebx+4+8*edx],eax
         func_end
