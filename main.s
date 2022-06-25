@@ -29,8 +29,8 @@
         push ebx
         push ecx
         push edx
-        push %1
-        push 1
+        push dword %1
+        push dword 1
         call calloc
         add esp, 8
         pop edx
