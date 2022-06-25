@@ -16,50 +16,22 @@
     div ebx       ; edx = %1 mod %2
 %endmacro
 
-%macro print_float 1
-	pushad
-	mov [float1], %1
-	fld dword [float1]
-    fstp qword [float2]
-	push dword [float2+4]  ;pushes 32 bits (MSB)
-    push dword [float2]    ;pushes 32 bits (LSB)
-	push float_format
-	call printf
-	add esp, 12
-	popad
-%endmacro
-
-;%1 = int to print
-%macro  print_decimal 1
-    pushad
-    push dword %1
-    push decimal_format
-    call printf
-    add esp, 8
-    popad
-%endmacro
-
 %macro my_print 1
     push %1
     call printf
     add esp, 4
 %endmacro
 
-%macro  print_comma 0
-    pushad
-    push comma_format
-    call printf
-    add esp, 4
-    popad
+
+%macro mov_mem_to_mem_qwords 2
+    push edx
+    mov edx, dword [%2]
+    mov dword [%1], edx
+    mov edx, dword [%2+4]
+    mov dword [%1+4], edx
+    pop edx
 %endmacro
 
-%macro print_new_line 0
-    pushad
-    push new_line_format
-    call printf
-    add esp, 4
-    popad
-%endmacro
 
 section	.rodata
     ; formats
@@ -132,9 +104,8 @@ section .text
         .print_target:
             pushad
             mov eax, [target_pointer]
-            fld qword [eax+TARGET_STRUCT_XPOS_OFFSET]
-            fstp qword [esp]
             sub esp,8           ;make 8 bytes for target x in stack
+            mov_mem_to_mem_qwords esp, target_pointer+TARGET_STRUCT_XPOS_OFFSET
 
             fld qword [eax+TARGET_STRUCT_YPOS_OFFSET]
             fstp qword [esp]
