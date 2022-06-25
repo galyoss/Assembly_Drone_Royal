@@ -543,9 +543,16 @@ allocate_cors:
         mov edx,dword [Nval]            ;set edx with num of drones 
         add edx, 3                      ;add to edx num of 3 additional cors (print, sched, target)
         shl edx,3                       ;mult by 8, size of each cors struct size
-        calloc_macro edx
+        push edx
+        push ebx
+        push ecx
+        push dword %1
+        call malloc
+        add esp,4
+        pop ecx
+        pop ebx
+        pop edx
         mov dword [cors],eax ;moving pointer to allocated array into the CORS label
-
         pushad
         mov ebx,dword [cors]
         mov edx, [Nval]
