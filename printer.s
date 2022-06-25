@@ -115,6 +115,7 @@ section .text
     extern Nval
     extern printf
     extern target_pointer
+    extern sched_co_index
     extern DronesArrayPointer
     extern cors
     extern resume
@@ -186,6 +187,13 @@ section .text
             jmp .printer_loop
         .end_printer_loop:
         
-        transfer_ctrl dword [co_index]      ;transfering control to scheduler after print
-        
+            push ecx
+            mov ecx, sched_co_index
+            mov ebx, dword [cors]
+            shl ecx,3
+            add ebx,ecx
+            pop ecx
+            call resume
+
+
         jmp _loop
