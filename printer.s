@@ -132,10 +132,9 @@ section .text
         .print_target:
             pushad
             mov eax, [target_pointer]
-            ; sub esp,8           ;make 8 bytes for target x in stack
-            ; fld qword [eax+TARGET_STRUCT_XPOS_OFFSET]
-            ; fstp qword [esp]
-            push qword [eax+TARGET_STRUCT_XPOS_OFFSET]
+            sub esp,8           ;make 8 bytes for target x in stack
+            fld qword [eax+TARGET_STRUCT_XPOS_OFFSET]
+            fstp qword [esp]
 
             sub esp,8             ;make 8 bytes for target y in stack
             fld qword [eax+TARGET_STRUCT_YPOS_OFFSET]
@@ -143,7 +142,7 @@ section .text
 
             push target_string_format
             call printf
-            add esp,12
+            add esp,20
 
         .printer_loop:
             cmp ebx,ecx
