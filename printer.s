@@ -39,6 +39,12 @@
     popad
 %endmacro
 
+%macro my_print %1
+        push %1
+        call printf
+        add esp, 4
+%endmacro
+
 %macro  print_comma 0
     pushad
     push comma_format
@@ -62,6 +68,7 @@ section	.rodata
 	float_format: db "%.2f", 0 			    ;2digit precision
     new_line_format: db 10, 0
     comma_format: db ",", 0
+    string_returning_to_sched: db "returning to sched", 10, 0
     DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
     DRONE_STRUCT_XPOS_OFFSET: equ 0
     DRONE_STRUCT_YPOS_OFFSET: equ 8
@@ -87,6 +94,9 @@ section	.rodata
     BOARD_SIZE: equ 100
     format_d:   db "%d", 0
     format_f:   db "%f", 0
+    string_run_printer: db "running printer", 10, 0
+    string_printing_target: db "printing target", 10, 0
+    string_printing_drones: db "printint drones", 10, 0
     MAX_DELTA_DEG_RANGE: equ 120
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
@@ -109,13 +119,16 @@ section .text
 
 
     run_printer:
+        my_print string_run_printer
         _print_target:
+            my_print string_printing_target
             mov edx, [target_pointer]
             print_float edx ;TODO, check if register is needed
             print_comma
             mov edx, 8
             print_float edx
 
+        my_print string_printing_drones
         xor ecx, ecx
         _print_drones_loop:
             cmp ecx, [Nval]            ;while i < N
@@ -147,5 +160,6 @@ section .text
             jmp _print_drones_loop
 
         _return_to_printer:
+            my_print string_returning_to_sched
             mov ebx, [cors]     ; ebx = scheduler*
             call resume
