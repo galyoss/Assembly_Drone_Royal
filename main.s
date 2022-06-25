@@ -34,7 +34,7 @@
         call malloc
         add esp, 8
         pop edx
-        pop edx
+        pop ecx
         pop ebx
 %endmacro
 
@@ -561,7 +561,7 @@ allocate_cors:
             cmp ecx,edx
             je .end_drone_cors_loop
             
-            mov dword [ebx+CODEP+8*ecx],run_drone
+            mov dword [ebx+CODEP+8*ecx], run_drone
             
             calloc_macro STKSIZE
             add eax,STKSIZE
