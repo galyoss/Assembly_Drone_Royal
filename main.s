@@ -429,7 +429,7 @@ move_target:
     fld qword [varA]
     fadd qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET]
     fstp qword [varA]
-    push dword [BOARD_SIZE]                      ; pushing board limits
+    push dword BOARD_SIZE                      ; pushing board limits
     call wrap              ; now var A hold wrap y
     mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_YPOS_OFFSET, varA    ;TODO see if this works
 
@@ -444,7 +444,7 @@ update_drone_deg: ;(drone * ) -> null, update drone deg
     fld qword [varA]
     fadd qword [ebx + DRONE_STRUCT_HEADING_OFFSET]
     fstp qword [varA]
-    push dword [MAX_DEGREE]                      ; pushing board limits
+    push dword MAX_DEGREE                      ; pushing board limits
     call wrap                             ; now var A hold wrap x
     mov_mem_to_mem_qwords ebx+DRONE_STRUCT_HEADING_OFFSET, varA  ;TODO see if this works
 
