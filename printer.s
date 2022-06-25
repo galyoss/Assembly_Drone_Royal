@@ -135,8 +135,8 @@ section .text
             
             
             add eax, DRONE_STRUCT_SPEED_OFFSET
-            sub esp, 8
             mov_mem_to_mem_qwords esp, eax
+            sub esp, 8
             sub eax, DRONE_STRUCT_SPEED_OFFSET
 
             add eax, DRONE_STRUCT_HEADING_OFFSET
