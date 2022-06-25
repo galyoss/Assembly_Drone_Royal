@@ -84,6 +84,7 @@ section	.rodata
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
     drone_info_line_format: db " %d, %.2f , %.2f , %.2f , %.2f , %b ",10,0 ;index, x, y, heading, speed, num of kills
     target_string_format: db "%.2f, %.2f", 10, 0                            ;x,y (for target)
+    dummy_line: db "printing... %d", 10, 0
 
 
 section .data
@@ -128,29 +129,12 @@ section .text
             cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
             je .dont_print_drone
 
-            add eax, DRONE_STRUCT_KILLS_OFFSET
-            push dword eax
-            sub eax, DRONE_STRUCT_KILLS_OFFSET
+            push dword [num_of_drones_left]
 
-            
-            sub esp,8
-            fld qword [eax+DRONE_STRUCT_SPEED_OFFSET]
-            fstp qword [esp]
-
-            add eax, DRONE_STRUCT_YPOS_OFFSET
-            push dword eax
-            sub eax, DRONE_STRUCT_YPOS_OFFSET
-
-            add eax, DRONE_STRUCT_XPOS_OFFSET
-            push dword eax
-            sub eax, DRONE_STRUCT_XPOS_OFFSET
-            
-            push ebx
-
-            push drone_info_line_format
+            push dummy_line
             
             call printf
-            add esp,44
+            add esp,8
 
             .dont_print_drone:
             popad

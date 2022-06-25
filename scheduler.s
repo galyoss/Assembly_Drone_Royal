@@ -77,6 +77,7 @@ section .text
     extern printer_co_index
     extern target_co_index
     global run_schedueler
+    global num_of_drones_left
 
 
 
