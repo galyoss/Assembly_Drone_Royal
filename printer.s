@@ -101,7 +101,7 @@ section	.rodata
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
     drone_info_line_format: db " %d, %.2f , %.2f , %.2f , %.2f , %d ",10,0 ;index, x, y, heading, speed, num of kills
-    target_string_format: db "%.2f", 10, 0                            ;x,y (for target)
+    target_string_format: db "%.1f", 10, 0                            ;x,y (for target)
 
 
 section .data
