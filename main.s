@@ -100,6 +100,7 @@ section .data
     ;; defining utility functions: random, rad->deg, ged->rad,
     extern calloc
     extern printf
+    extern malloc
     extern run_printer
     extern run_target
     extern run_drone
