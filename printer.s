@@ -129,8 +129,11 @@ section .text
             je .dont_print_drone
 
             add eax, DRONE_STRUCT_KILLS_OFFSET
-            push dword [eax]
+            sub esp, 8
+            mov_mem_to_mem_qwords esp, eax
             sub eax, DRONE_STRUCT_KILLS_OFFSET
+
+            
             
             add eax, DRONE_STRUCT_SPEED_OFFSET
             push dword eax
