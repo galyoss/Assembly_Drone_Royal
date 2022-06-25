@@ -74,6 +74,8 @@ section .text
     extern DRONE_STRUCT_ACTIVE
     extern DronesArrayPointer
     extern DronesArrayPointer
+    extern printer_co_index
+    extern target_co_index
     global run_schedueler
 
 
@@ -153,7 +155,6 @@ run_schedueler:
                 je _eliminate
                 mov dword [drones_eliminated_this_round], 0
 
-            jmp _check_printer
         _print_board:
             push ecx
             mov ebx, [cors]

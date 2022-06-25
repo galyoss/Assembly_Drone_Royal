@@ -107,6 +107,8 @@ section .data
     global DronesArrayPointer
     global currDrone
     global target_pointer
+    global printer_co_index
+    global target_co_index
     global cors
     global varA
     global varB
