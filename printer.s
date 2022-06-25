@@ -181,7 +181,7 @@ section .text
             push drone_info_line_format
             
             call printf
-            add esp,45
+            add esp,44
 
             .skip_drone:
             popad
