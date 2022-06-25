@@ -125,20 +125,20 @@ section .text
     run_printer:
         finit
         my_print string_run_printer
-        .loop:
+        .printer_loop:
             mov ecx,[Nval]
             mov eax,dword [DronesArrayPointer]
             xor ebx,ebx
         .print_target:
             pushad
             mov eax, [target_pointer]
-            sub esp,8           ;make 8 bytes for target x in stack
             fld qword [eax+TARGET_STRUCT_XPOS_OFFSET]
             fstp qword [esp]
+            sub esp,8           ;make 8 bytes for target x in stack
 
-            sub esp,8             ;make 8 bytes for target y in stack
             fld qword [eax+TARGET_STRUCT_YPOS_OFFSET]
             fstp qword [esp]
+            sub esp,8             ;make 8 bytes for target y in stack
 
             push target_string_format
             call printf
@@ -199,4 +199,4 @@ section .text
             call resume
 
 
-        jmp .loop
+        jmp .printer_loop
