@@ -243,7 +243,7 @@ generate_random_delta_deg: ;delta degree, (-60)-(60)
 generate_random_delta_xy: ; delta dict, (-10)-(10)
     func_start
     pushad
-    push dword [MAX_DELTA_POS_RANGE] ; ==20
+    push dword MAX_DELTA_POS_RANGE ; ==20
     call get_random_scaled_number
     add esp, 4
     popad
@@ -421,7 +421,7 @@ move_target:
     fld qword [varA]
     fadd qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET]
     fstp qword [varA]
-    push dword [BOARD_SIZE]                      ; pushing board limits
+    push dword BOARD_SIZE                      ; pushing board limits
     call wrap              ; now var A hold wrap x
     mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_XPOS_OFFSET, varA    ;TODO see if this works
 
