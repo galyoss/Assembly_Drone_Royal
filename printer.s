@@ -145,7 +145,7 @@ section .text
             add esp,20
             popad
 
-        .printer_loop:
+        .drone_printer_loop:
             cmp ebx,ecx
             je .end_printer_loop
 
@@ -187,7 +187,7 @@ section .text
             popad
             
             inc ebx
-            jmp .printer_loop
+            jmp .drone_printer_loop
         .end_printer_loop:
         
             push ecx
