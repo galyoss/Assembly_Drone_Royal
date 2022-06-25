@@ -100,6 +100,9 @@ section	.rodata
     MAX_DELTA_DEG_RANGE: equ 120
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
+    drone_info_line_format: db " %d, %.2f , %.2f , %.2f , %.2f , %d ",10,0 ;index, x, y, heading, speed, num of kills
+    target_string_format: db "%.2f, %.2f", 10, 0                            ;x,y (for target)
+
 
 section .data
     
@@ -119,47 +122,70 @@ section .text
 
 
     run_printer:
+        finit
         my_print string_run_printer
-        _print_target:
-            my_print string_printing_target
-            mov edx, [target_pointer]
-            print_float edx ;TODO, check if register is needed
-            print_comma
-            mov edx, 8
-            print_float edx
+        .loop:
+            mov ecx,[Nval]
+            mov eax,dword [DronesArrayPointer]
+            xor ebx,ebx
+        .print_target:
+            pushad
+            mov eax, [target_pointer]
+            sub esp,8           ;make 8 bytes for target x in stack
+            fld qword [eax+TARGET_STRUCT_XPOS_OFFSET]
+            fstp qword [esp]
 
-        my_print string_printing_drones
-        xor ecx, ecx
-        _print_drones_loop:
-            cmp ecx, [Nval]            ;while i < N
-            je _return_to_printer
-            ;mov ebx, [DronesArrayPointer] + ecx * 4]     ; ebx = drone[i] pointer
-            mov ebx, [DronesArrayPointer]
-            add ebx, ecx
-            add ecx, 4                                     ; i++
-            cmp byte[ebx+DRONE_STRUCT_ACTIVE_OFFSET], 0 ; drone.isAlive()
-            je _print_drones_loop
+            sub esp,8             ;make 8 bytes for target y in stack
+            fld qword [eax+TARGET_STRUCT_YPOS_OFFSET]
+            fstp qword [esp]
 
-            print_decimal ecx                           ; drone print index starts at 1
-            print_comma
-            print_float ebx       ; print ebx+0
-            print_comma
-            add ebx, 8
-            print_float ebx         ;print ebx+8
-            print_comma
-            add ebx, 8             
-            print_float ebx         ;print ebx+16
-            print_comma
-            add ebx, 8                
-            print_float ebx          ;print ebx+24
-            print_comma
-            add ebx, 8
-            print_decimal  [ebx]
-            print_new_line
+            push target_string_format
+            call printf
+            add esp,16
 
-            jmp _print_drones_loop
+        .printer_loop:
+            cmp ebx,ecx
+            je .end_printer_loop
 
-        _return_to_printer:
-            my_print string_returning_to_sched
-            mov ebx, [cors]     ; ebx = scheduler*
-            call resume
+            pushad
+            lea eax,[eax+4*ebx]     
+            mov eax,dword [eax]     ;calculate address of the i drone
+            
+            cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
+            je .skip_drone
+
+            push dword [eax+DRONE_STRUCT_KILLS_OFFSET]
+
+            sub esp,8
+            fld qword [eax+DRONE_STRUCT_SPEED_OFFSET]
+            fstp qword [esp]
+            
+            sub esp,8
+            fld qword [eax+DRONE_STRUCT_HEADING_OFFSET]
+            fstp qword [esp]
+
+            sub esp,8
+            fld qword [eax+DRONE_STRUCT_YPOS_OFFSET]
+            fstp qword [esp]
+
+            sub esp,8
+            fld qword [eax+DRONE_STRUCT_XPOS_OFFSET]
+            fstp qword [esp]
+            
+            push ebx
+
+            push drone_info_line_format
+            
+            call printf
+            add esp,45
+
+            .skip_drone:
+            popad
+            
+            inc ebx
+            jmp .printer_loop
+        .end_printer_loop:
+        
+        transfer_ctrl dword [co_index]      ;transfering control to scheduler after print
+        
+        jmp _loop
