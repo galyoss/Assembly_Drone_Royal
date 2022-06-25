@@ -143,6 +143,7 @@ section .text
             push target_string_format
             call printf
             add esp,20
+            popad
 
         .printer_loop:
             cmp ebx,ecx
