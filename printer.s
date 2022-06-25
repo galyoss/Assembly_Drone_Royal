@@ -128,9 +128,10 @@ section .text
             cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
             je .dont_print_drone
 
-            add eax, DRONE_STRUCT_KILLS_OFFSET
-            push byte [eax]
-            sub eax, DRONE_STRUCT_KILLS_OFFSET
+            ; add eax, DRONE_STRUCT_KILLS_OFFSET
+            ; push byte [eax]
+            ; sub eax, DRONE_STRUCT_KILLS_OFFSET
+            push 1
 
             
             
