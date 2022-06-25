@@ -31,7 +31,7 @@
         push edx
         push %1
         push 1
-        call malloc
+        call calloc
         add esp, 8
         pop edx
         pop ecx
