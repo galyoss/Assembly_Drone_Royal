@@ -564,6 +564,7 @@ allocate_cors:
         
         ;allocating correct pointers and stack for scheduler and target and print cors
         popad
+        mov ebx, [cors]
         mov edx,dword [Nval]
         add edx, 3          ;edx = num of cors in total
         dec edx             ;go to the last 'index' in cors array
