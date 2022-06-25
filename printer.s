@@ -98,6 +98,7 @@ section .text
     extern Nval
     extern printf
     extern target_pointer
+    extern num_of_drones_left
     extern sched_co_index
     extern DronesArrayPointer
     extern cors
