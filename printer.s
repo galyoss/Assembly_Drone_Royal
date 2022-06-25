@@ -196,4 +196,4 @@ section .text
             call resume
 
 
-        jmp _loop
+        jmp .loop
