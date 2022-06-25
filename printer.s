@@ -107,7 +107,7 @@ section .text
     run_printer:
         finit
         my_print string_run_printer
-     finit
+        finit
         .inf_loop:
 
         mov ecx, [Nval]
@@ -119,9 +119,11 @@ section .text
             je .end_printer_loop
 
             pushad
-            lea eax,[eax+4*ebx]
-            mov eax,dword [eax]     ;eax=DRONE_ARRAY->info_array[ebx]->drone_info
-            
+            mov eax, [DronesArrayPointer]
+            shl ebx, 2
+            add eax, ebx
+            shr ebx, 2
+
             cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET],0
             je .dont_print_drone
 
