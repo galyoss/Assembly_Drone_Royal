@@ -22,6 +22,16 @@
     add esp, 4
 %endmacro
 
+%macro call_next_cors 1
+            push ecx
+            mov ecx,%1
+            mov ebx, dword [cors]
+            shl ecx,3
+            add ebx,ecx
+            pop ecx
+            call resume
+%endmacro
+
 
 %macro mov_mem_to_mem_qwords 2
     push edx
@@ -97,36 +107,26 @@ section .text
     run_printer:
         finit
         my_print string_run_printer
-        .printer_loop:
-            mov ecx,[Nval]
-            mov eax,dword [DronesArrayPointer]
-            xor ebx,ebx
-        .print_target:
-            pushad
-            mov eax, target_pointer
-            push eax
-            add eax, 8
-            push eax
-            push target_string_format
-            call printf
-            add esp,12
-            popad
+     finit
+        .inf_loop:
 
-        .drone_printer_loop:
+        mov ecx, [Nval]
+        mov eax,dword [DronesArrayPointer]
+        xor ebx,ebx
+        
+        .printer_loop:
             cmp ebx,ecx
             je .end_printer_loop
 
             pushad
-            mov eax, [DronesArrayPointer]
-            shl ebx, 2
-            add eax, ebx
-            shr ebx, 2
-
-            cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
-            je .skip_drone
+            lea eax,[eax+4*ebx]
+            mov eax,dword [eax]     ;eax=DRONE_ARRAY->info_array[ebx]->drone_info
+            
+            cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET],0
+            je .dont_print_drone
 
             push dword [eax+DRONE_STRUCT_KILLS_OFFSET]
-
+            
             sub esp,8
             fld qword [eax+DRONE_STRUCT_SPEED_OFFSET]
             fstp qword [esp]
@@ -150,20 +150,13 @@ section .text
             call printf
             add esp,44
 
-            .skip_drone:
+            .dont_print_drone:
             popad
             
             inc ebx
-            jmp .drone_printer_loop
+            jmp .printer_loop
         .end_printer_loop:
         
-            push ecx
-            mov ecx, sched_co_index
-            mov ebx, dword [cors]
-            shl ecx,3
-            add ebx,ecx
-            pop ecx
-            call resume
-
-
-        jmp .printer_loop
+        call_next_cors dword [sched_co_index]      ;transfering control to scheduler after print
+        
+        jmp .inf_loop
