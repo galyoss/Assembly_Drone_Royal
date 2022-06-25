@@ -50,6 +50,9 @@ section .bss
     SPMAIN: resd 1  ;main stack pointer
 
 section .rodata
+    STKSIZE: equ 16*1024
+    CODEP: equ 0; offset of pointer to co-routine function in co-routine struct 
+    SPP: equ 4; offset of pointer to co-routine stack in co-routine struct
     DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
     DRONE_STRUCT_XPOS_OFFSET: equ 0
     DRONE_STRUCT_YPOS_OFFSET: equ 8
@@ -125,6 +128,10 @@ section .data
     Gamma: dq 0
     varA: dq 0
     varB: dq 0
+    num_of_cors: dd 0
+    sched_co_index: dd 0
+    target_co_index: dd 0
+    printer_co_index: dd 0
     cors: dd 0
     seed: dw 0
     Debug: db 1
@@ -515,73 +522,124 @@ mayDestroy:
 		pop ebp
 		ret
 
-
-init_co_routines:
-    func_start
-    mov eax, 0
-    mov eax, 3
-    add eax, [Nval]
-    ; eax hold num of required cors - printer, scheder, target, N drones
-    push eax
-    push 8 ; TODO - does the order matter?
-    call calloc
-    add esp, 8
-    mov dword [cors], eax
-    init_sched_cor:
-    mov dword [cors], run_schedueler
-    push 1
-    push CO_STK_SIZE
-    call calloc
-    add esp, 8
-    mov dword [cors+4], eax
-
-    init_target_cor:
-    mov dword [cors+8], run_target
-    push 1
-    push CO_STK_SIZE
-    call calloc
-    add esp, 8
-    mov dword [cors+12], eax
-
-    init_printer_cor:
-    mov dword [cors+16], run_printer
-    push 1
-    push CO_STK_SIZE
-    call calloc
-    add esp, 8
-    mov dword [cors+20], eax
-
-    init_drones_cors:
-    mov ebx, 3 ; our loop counter (cmp ebx with [N]+3)
-    drones_cors_init_loop:
-    mov esi, dword [Nval]
-    add esi, 3
-    cmp ebx, esi         ; if not working, move [N]+3 into register
-    je end_drones_cors_init_loop
-    mov dword [cors+ebx*8], run_drone
-    push 1
-    push CO_STK_SIZE
-    call calloc
-    add esp, 8
-    mov dword [cors+ebx*8+4], eax
-    jmp drones_cors_init_loop
-    end_drones_cors_init_loop:
-    func_end
-
+allocate_cors:
+        func_start
+        mov edx,dword [Nval]            ;set edx with num of drones 
+        add edx, 3                      ;add to edx num of 3 additional cors (print, sched, target)
+        shl edx,3                       ;mult by 8, size of each cors struct size
+        push edx
+        push 1
+        call calloc
+        add esp, 8
+        mov dword [cors],eax ;moving pointer to allocated array into the CORS label
+        
+        
+        mov ebx,dword [cors]
+        pushad
+        mov edx, [Nval]
+        xor ecx,ecx
+        .drone_cors_loop:
+            cmp ecx,edx
+            je .end_drone_cors_loop
+            
+            mov dword [ebx+CODEP+8*ecx],run_drone
+            
+            push STKSIZE
+            push 1
+            call calloc
+            add esp, 8
+            add eax,STKSIZE
+            
+            mov dword [ebx+SPP+8*ecx],eax
+            inc ecx
+            jmp .drone_cors_loop
+        .end_drone_cors_loop:
+        
+        ;allocating correct pointers and stack for scheduler and target and print cors
+        popad
+        mov edx,dword [Nval]
+        add edx, 3          ;edx = num of cors in total
+        dec edx             ;go to the last 'index' in cors array
+        mov dword [sched_co_index], edx
+        mov dword [ebx+8*edx],run_schedueler
+        push STKSIZE
+        push 1
+        call calloc
+        add esp, 8
+        add eax,STKSIZE
+        mov dword [ebx+4+8*edx],eax
+        
+        dec edx
+        mov dword [printer_co_index], edx
+        mov dword [ebx+8*edx],run_printer
+        push STKSIZE
+        push 1
+        call calloc
+        add esp, 8
+        add eax,STKSIZE
+        mov dword [ebx+4+8*edx],eax
+        
+        dec edx
+        mov dword [target_co_index],edx
+        mov dword [ebx+8*edx],run_target
+        push STKSIZE
+        push 1
+        call calloc
+        add esp, 8
+        add eax,STKSIZE
+        mov dword [ebx+4+8*edx],eax
+        func_end
 ; EBX is pointer to co-init structure of co-routine to be resumed
 ; CURR holds a pointer to co-init structure of the curent co-routine
-resume:
-	pushfd					; Save state of caller
-	pushad
-	mov	edx, [cors]
-	mov	[edx+8], esp		; Save current SP
 
-do_resume:
-	mov	esp, [ebx+8]  	; Load SP for resumed co-routine
-	mov	[cors], ebx
-	popad					; Restore resumed co-routine state
-	popfd
-	ret                     ; "return" to resumed co-routine!
+
+ initCo:
+        func_start
+        
+        mov ebx,[ebp+8]
+        mov ecx , dword [cors] ;ecx=ptr to CORS struct
+        shl ebx,3
+        add ebx,ecx
+        ; now ebx holds pointer to the cor struct we want (i)
+        mov eax, dword [ebx+CODEP]
+        mov dword [SPT], esp
+        mov esp, dword [ebx+SPP]
+        push eax
+        pushfd
+        pushad
+        mov dword [ebx+SPP], esp
+        mov esp, dword [SPT]
+        
+        func_end
+
+ startCo:
+        func_start
+        
+        pushad; save registers of main ()
+        mov dword [SPMAIN], esp; save ESP of main ()
+        mov ebx, dword [ebp+8]; gets ID of a scheduler co-routine
+        mov ecx , dword [cors] ;ecx=ptr to CORS struct
+        shl ebx,3
+        add ebx,ecx
+        jmp do_resume; resume a scheduler co-routine
+        
+    end_co:
+        mov esp,dword [SPMAIN]
+        popad
+        end_method
+
+    
+    resume:
+        pushfd
+        pushad
+        mov edx,[CURR]
+        mov [edx+SPP],esp
+    do_resume:
+        mov esp,[ebx+SPP]
+        mov [CURR],ebx
+        popad
+        popfd
+        ret
 
 main:
     ;parse input
@@ -596,24 +654,37 @@ main:
     mov     ebx, [ebp+12]                        ; argv <N> <R> <K> <d> <seed>
     add     ebx, 4                               ; skip first arg
     parseArgInto Nval, format_d
+    mov esi, [Nval]
+    add esi, 3
+    mov [num_of_cors], esi
     parseArgInto Rval, format_d
     parseArgInto Tval, format_d
     parseArgInto Kval, format_d
     parseArgInto Dval, format_f
     parseArgInto seed, format_d
+    pushad
     call initDronesArray
     call init_target
-    call init_co_routines
-    mov [SPMAIN], esp
-    mov dword [currDrone], 0			; Curr drone will hold the first drone ID
-    mov ebx, cors						; Ebx is pointer to scheduler function
-    jmp do_resume
+    call allocate_cors ;allocating all the necessary memory , for the CORS struct and the stacks of each coroutine
+    popad
+    xor ecx,ecx
+    .init_loop:
+        cmp ecx,dword [num_of_cors]
+        je .end_init_loop
+        pushad
+        push ecx
+        call initCo
+        add esp,4
+        popad
+        inc ecx
+        jmp .init_loop
+    .end_init_loop:
 
-    finish_main:
-        mov 	esp, [SPMAIN]
-        call    free_mem
-        pop     ebp             			; Restore caller state
-        ret
+        push dword [sched_co_index]
+        call startCo
+        add esp,4
+        func_end
+
 
 free_mem:
     func_start

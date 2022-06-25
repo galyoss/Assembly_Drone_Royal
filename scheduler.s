@@ -153,19 +153,31 @@ run_schedueler:
                 je _eliminate
                 mov dword [drones_eliminated_this_round], 0
 
-            jmp _check_print
+            jmp _check_printer
         _print_board:
-            mov ebx, dword[cors+16]         ; move pointer of printer coroutine to ebx
+            push ecx
+            mov ebx, [cors]
+            mov ecx, [printer_co_index]
+            shl ecx, 3
+            add ebx, ecx                    ;מow ebx points to printer co
+            pop ecx
             call resume                     ; resume printer
             jmp _check_move_target          ; board was printed
         _move_target:
-            mov ebx, dword[cors+8]          ; move target of printer coroutine to ebx
-            call resume                     ; resume target
+            push ecx
+            mov ebx, [cors]
+            mov ecx, [target_co_index]
+            shl ecx, 3
+            add ebx, ecx                    ;מow ebx points to target co
+            pop ecx
+            call resume                     ; resume printer
             jmp _check_drone_alive          ; target was moved
         _call_drone_cor:
             ;edx holds i%N
-            add edx, 3                      ;   drones corourtines start at index 3
-            mov ebx, [cors + edx*8]         ; size of cors struct is 8, now ebx holds pointer to curr drone coroutine
+            mov ebx, cors
+            shl edx, 3
+            add ebx, edx
+            shr edx, 3
             call resume                     ; resume curr drone
         _loop_end:
             inc dword [curr_step]                 ; i++
