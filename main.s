@@ -546,8 +546,8 @@ allocate_cors:
         calloc_macro edx
         mov dword [cors],eax ;moving pointer to allocated array into the CORS label
 
-        mov ebx,dword [cors]
         pushad
+        mov ebx,dword [cors]
         mov edx, [Nval]
         xor ecx,ecx
         .drone_cors_loop:
