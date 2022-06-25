@@ -150,8 +150,10 @@ section .text
 
             pushad
             mov eax, [DronesArrayPointer]
-            lea eax, eax+4*ebx
-            
+            shl ebx, 2
+            add eax, ebx
+            shr ebx, 2
+
             cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
             je .skip_drone
 
