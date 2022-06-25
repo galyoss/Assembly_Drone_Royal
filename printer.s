@@ -39,10 +39,10 @@
     popad
 %endmacro
 
-%macro my_print %1
-        push %1
-        call printf
-        add esp, 4
+%macro my_print 1
+    push %1
+    call printf
+    add esp, 4
 %endmacro
 
 %macro  print_comma 0
