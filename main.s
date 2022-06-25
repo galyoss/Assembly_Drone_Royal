@@ -543,7 +543,6 @@ allocate_cors:
         add edx, 3                      ;add to edx num of 3 additional cors (print, sched, target)
         shl edx,3                       ;mult by 8, size of each cors struct size
         calloc_macro edx
-        add esp, 8
         mov dword [cors],eax ;moving pointer to allocated array into the CORS label
 
         mov ebx,dword [cors]
