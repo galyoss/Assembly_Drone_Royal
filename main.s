@@ -72,7 +72,6 @@ section .rodata
     DRONE_STRUCT_SPEED_OFFSET: equ 24
     DRONE_STRUCT_KILLS_OFFSET: equ 32
     DRONE_STRUCT_ACTIVE_OFFSET: equ 36
-    DRONE_STRUCT_KILLS:
     TARGET_STRUCT_SIZE: equ 17
     TARGET_STRUCT_XPOS_OFFSET: equ 0
     TARGET_STRUCT_YPOS_OFFSET: equ 8
@@ -356,11 +355,11 @@ initDronesArray:
         push DroneStructLen
         call calloc
         add esp, 8
-        mov edi, [DronesArrayPointer]
+        mov edx, [DronesArrayPointer]
         shl ebx, 2
-        add edi, ebx
+        add edx, ebx
         shr ebx, 2
-        mov dword [edi], eax
+        mov dword [edx], eax
         pushad
         push eax
         call init_drone_sturct ; init inside all values of this drone
