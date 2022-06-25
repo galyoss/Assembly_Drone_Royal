@@ -135,7 +135,7 @@ section .text
             sub esp,8           ;make 8 bytes for target x in stack
             ; fld qword [eax+TARGET_STRUCT_XPOS_OFFSET]
             ; fstp qword [esp]
-            mov qword [esp], eax+TARGET_STRUCT_XPOS_OFFSET
+            mov qword [esp], [eax+TARGET_STRUCT_XPOS_OFFSET]
 
             sub esp,8             ;make 8 bytes for target y in stack
             fld qword [eax+TARGET_STRUCT_YPOS_OFFSET]
