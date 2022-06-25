@@ -30,9 +30,8 @@
         push ecx
         push edx
         push %1
-        push 1
-        call calloc
-        add esp, 8
+        call malloc
+        add esp, 4
         pop edx
         pop edx
         pop ebx
