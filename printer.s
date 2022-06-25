@@ -141,7 +141,8 @@ section .text
             sub eax, DRONE_STRUCT_SPEED_OFFSET
 
             add eax, DRONE_STRUCT_HEADING_OFFSET
-            push qword [eax]
+            push dword [eax]
+            push dword [eax+4]
             sub eax, DRONE_STRUCT_HEADING_OFFSET
 
             add eax, DRONE_STRUCT_YPOS_OFFSET
