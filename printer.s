@@ -130,10 +130,21 @@ section .text
 
             push dword [eax+DRONE_STRUCT_KILLS_OFFSET]
             
-            push dword [eax+DRONE_STRUCT_SPEED_OFFSET]
-            push dword [eax+DRONE_STRUCT_HEADING_OFFSET]
-            push dword [eax+DRONE_STRUCT_YPOS_OFFSET]
-            push dword [eax+DRONE_STRUCT_XPOS_OFFSET]
+            add eax, DRONE_STRUCT_SPEED_OFFSET
+            push dword eax
+            sub eax, DRONE_STRUCT_SPEED_OFFSET
+
+            add eax, DRONE_STRUCT_HEADING_OFFSET
+            push dword eax
+            sub eax, DRONE_STRUCT_HEADING_OFFSET
+
+            add eax, DRONE_STRUCT_YPOS_OFFSET
+            push dword eax
+            sub eax, DRONE_STRUCT_YPOS_OFFSET
+
+            add eax, DRONE_STRUCT_XPOS_OFFSET
+            push dword eax
+            sub eax, DRONE_STRUCT_XPOS_OFFSET
             
             push ebx
 
