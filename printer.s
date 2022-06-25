@@ -149,8 +149,8 @@ section .text
             je .end_printer_loop
 
             pushad
-            lea eax,[eax+4*ebx]     
-            mov eax,dword [eax]     ;calculate address of the i drone
+            mov eax, [DronesArrayPointer]
+            add eax,4*ebx
             
             cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
             je .skip_drone
