@@ -18,10 +18,9 @@
 
 %macro mov_mem_to_mem_qwords 2
     push edx
-    mov edx, dword [%2]
-    mov dword [%1], edx
-    mov edx, dword [%2+4]
-    mov dword [%1+4], edx
+    finit
+    fld [%2]
+    fstp %1
     pop edx
 %endmacro
 

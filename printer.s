@@ -129,7 +129,7 @@ section .text
             je .dont_print_drone
 
             add eax, DRONE_STRUCT_KILLS_OFFSET
-            push dword [eax]
+            push byte [eax]
             sub eax, DRONE_STRUCT_KILLS_OFFSET
 
             
