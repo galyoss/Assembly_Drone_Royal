@@ -103,10 +103,10 @@ section .text
             xor ebx,ebx
         .print_target:
             pushad
-            mov eax, [target_pointer]
-            push [eax]
+            mov eax, target_pointer
+            push eax
             add eax, 8
-            push [eax]
+            push eax
             push target_string_format
             call printf
             add esp,12
