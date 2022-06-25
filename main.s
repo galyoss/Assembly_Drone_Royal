@@ -121,6 +121,7 @@ section .data
     global currDrone
     global target_pointer
     global printer_co_index
+    global sched_co_index
     global target_co_index
     global cors
     global varA
