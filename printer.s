@@ -124,7 +124,7 @@ section .text
             add eax, ebx
             shr ebx, 2
 
-            cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET],0
+            cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
             je .dont_print_drone
 
             push dword [eax+DRONE_STRUCT_KILLS_OFFSET]

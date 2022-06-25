@@ -356,7 +356,11 @@ initDronesArray:
         push DroneStructLen
         call calloc
         add esp, 8
-        mov dword [DronesArrayPointer+ebx*4], eax
+        mov edi, [DronesArrayPointer]
+        shl ebx, 2
+        add edi, ebx
+        shr ebx, 2
+        mov dword [edi], eax
         pushad
         push eax
         call init_drone_sturct ; init inside all values of this drone
