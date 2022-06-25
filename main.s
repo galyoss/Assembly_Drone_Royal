@@ -504,6 +504,7 @@ wrap:
 mayDestroy:
     ; func(drone[currDrone], target[target_pointer])->bool[eax]
     func_start
+    pushad
 	mov eax,0                           ;eax will hold the result
 
 	; we need to calculate:
