@@ -82,7 +82,7 @@ section	.rodata
     MAX_DELTA_DEG_RANGE: equ 120
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
-    drone_info_line_format: db " %d, %.2f , %.2f , %.2f , %.2f , %d ",10,0 ;index, x, y, heading, speed, num of kills
+    drone_info_line_format: db " %d, %.2f , %.2f , %.2f , %.2f , %b ",10,0 ;index, x, y, heading, speed, num of kills
     target_string_format: db "%.2f, %.2f", 10, 0                            ;x,y (for target)
 
 
@@ -128,22 +128,14 @@ section .text
             cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
             je .dont_print_drone
 
-            ; add eax, DRONE_STRUCT_KILLS_OFFSET
-            ; push byte [eax]
-            ; sub eax, DRONE_STRUCT_KILLS_OFFSET
-            push 1
+            add eax, DRONE_STRUCT_KILLS_OFFSET
+            push byte [eax]
+            sub eax, DRONE_STRUCT_KILLS_OFFSET
 
             
-            
-            add eax, DRONE_STRUCT_SPEED_OFFSET
-            mov_mem_to_mem_qwords esp, eax
-            sub esp, 8
-            sub eax, DRONE_STRUCT_SPEED_OFFSET
-
-            add eax, DRONE_STRUCT_HEADING_OFFSET
-            push dword [eax+4]
-            push dword [eax]
-            sub eax, DRONE_STRUCT_HEADING_OFFSET
+            sub esp,8
+            fld qword [eax+DRONE_STRUCT_SPEED_OFFSET]
+            fstp qword [esp]
 
             add eax, DRONE_STRUCT_YPOS_OFFSET
             push dword eax
