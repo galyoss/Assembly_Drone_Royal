@@ -18,7 +18,18 @@
 %endmacro
 
 section	.rodata
-
+    DroneStructLen: equ 37 ; 8xpox, 8ypos, 8angle, 8speed, 4kills, 1isActive
+    DRONE_STRUCT_XPOS_OFFSET: equ 0
+    DRONE_STRUCT_YPOS_OFFSET: equ 8
+    DRONE_STRUCT_HEADING_OFFSET: equ 16
+    DRONE_STRUCT_SPEED_OFFSET: equ 24
+    DRONE_STRUCT_KILLS_OFFSET: equ 32
+    DRONE_STRUCT_ACTIVE_OFFSET: equ 36
+    TARGET_STRUCT_SIZE: equ 17
+    TARGET_STRUCT_XPOS_OFFSET: equ 0
+    TARGET_STRUCT_YPOS_OFFSET: equ 8
+    TARGET_STRUCT_IS_DESTROYED_OFFSET: equ 16
+    
 section .data
     curr_step: dd 0
     num_of_drones_left: dd 0
@@ -37,10 +48,6 @@ section .text
     extern create_target
     extern target_pointer
     extern cors
-    extern TARGET_STRUCT_SIZE
-    extern TARGET_STRUCT_XPOS_OFFSET
-    extern TARGET_STRUCT_YPOS_OFFSET
-    extern TARGET_STRUCT_IS_DESTROYED_OFFSET
     global run_target
 
 
@@ -53,11 +60,11 @@ section .text
 
 
     run_target:
-        mov esi, target_pointer
+        mov esi, [target_pointer]
         cmp byte[esi + TARGET_STRUCT_IS_DESTROYED_OFFSET], 1
         je _create_target
 
-        _move_target:
+        move_the_target:
             call move_target
             jmp _return_to_scheduler
         
@@ -65,5 +72,5 @@ section .text
             call create_target
 
         _return_to_scheduler:
-            mov ebx, cors     ; ebx = scheduler*
+            mov ebx, [cors]     ; ebx = scheduler*
             call resume

@@ -1,15 +1,4 @@
-;; init drone locations
-;; init target
-;;TODO SATURDAY:
-    ; finish random functions (move drone, calc angle, calc angle delta...)
-    ; decide on CORS structs
-    ; parse input
-    ;  gal maybe geh -> maybe debug prints
 
-;;TODO NEXT TIME ON DRAGON BALL Z:
-    ; resume + do resume
-    ; drone functionality: may destroy, move
-    ;print pasha is geh with cors
 ; מי שמאמין לא מתעד
 %macro func_start 0
     push ebp
@@ -133,7 +122,6 @@ section .data
     Tval : dd 0
     Dval : dd 0
     Kval: dd 0
-    DronesArrayPointer: dd 0
     currDrone: dd 0
     currAngleDeg: dq 0
     currAngleRad: dq 0
@@ -148,12 +136,12 @@ section .bss
     CURR: resd 1    ;curr co routine
     SPT: resd 1     ;curr stack pointer
     SPMAIN: resd 1  ;main stack pointer
-    ;target_pointer: resd 1
+    DronesArrayPointer: resd 1
 
 
 section .text
 
-_start: ;TODO parse info in main func
+_start: 
     jmp main
 
 
@@ -199,18 +187,21 @@ generate_random_number:
 
 get_random_scaled_number: ;(int limit) -> varA = scaled float
     func_start
+    pushad
     call generate_random_number     ;now ax and seed hold random short
     ffree
     mov dword[varA], 0               ; clean varA
     mov word[varA], ax              ; varA = random short
     fld dword[varA]                 ; push varA
     mov dword[varB], MAX_SEED
-    fidiv dword[varB]                 ;now float stack top is a number (0,1];TODO: check if not need f*i*div
+    fidiv dword[varB]                 ;now float stack top is a number (0,1];
     mov eax, dword[ebp+8]              ;eax holds limit
     mov dword [varB], eax
     fimul dword[varB]                ;now top of stack is the random dist
-    mov dword[varA], 0
-    fstp dword[varA]                 ;varA now holds the position
+    mov dword[varA], 0                  ;ani hostaphti
+    mov dword[varA+4], 0
+    fstp qword[varA]                 ;varA now holds the position
+    popad
     func_end
 
 generate_random_deg: ; initial degree, 0-360
@@ -282,7 +273,7 @@ convert_deg_to_rad:
     func_start
     finit
     fld qword [currAngleDeg]
-    mov [varA], dword 0 ; TODO remove?
+    mov [varA], dword 0 ;
     mov [varA], dword 180
     fild dword [varA]
     fdiv
@@ -291,7 +282,7 @@ convert_deg_to_rad:
     fstp qword [currAngleRad]
     func_end
 
-; TODO: maybe not necassary?
+
 convert_rad_to_deg:
     func_start
     finit
@@ -355,7 +346,8 @@ initDronesArray:
         push dword DroneStructLen
         call calloc
         add esp, 8
-        mov dword [DronesArrayPointer+ebx*4], eax
+        mov edi, [DronesArrayPointer]           ;edi = start of drones array
+        mov dword [edi+ebx*4], eax
         pushad
         push eax
         call init_drone_sturct ; init inside all values of this drone
@@ -373,7 +365,7 @@ init_drone_sturct:
     mov ebx, [ebp+8]
     ;now ebx holds pointer to the desired drone
     call generate_random_position
-    mov_mem_to_mem_qwords ebx+DRONE_STRUCT_XPOS_OFFSET, varA ; TODO: figure how to load 8 bytes to another address in memory
+    mov_mem_to_mem_qwords ebx+DRONE_STRUCT_XPOS_OFFSET, varA 
     call generate_random_position
     mov_mem_to_mem_qwords ebx+DRONE_STRUCT_YPOS_OFFSET, varA
     call generate_random_deg
@@ -390,6 +382,7 @@ init_target:
     push dword TARGET_STRUCT_SIZE
     push 1
     call calloc
+    add esp, 8
     ; now eax holds the pointer
     mov dword [target_pointer], eax
     call create_target
@@ -405,35 +398,39 @@ create_target:
     mov_mem_to_mem_qwords esi+TARGET_STRUCT_XPOS_OFFSET, varA
     call generate_random_position
     mov_mem_to_mem_qwords esi+TARGET_STRUCT_YPOS_OFFSET, varA
-    mov byte [target_pointer+TARGET_STRUCT_IS_DESTROYED_OFFSET], 0
+    mov byte [esi+TARGET_STRUCT_IS_DESTROYED_OFFSET], 0
     popad
     func_end
 
 move_target:
     func_start
+    pushad
     call generate_random_delta_xy       ;now var A hold delta x
     ffree
-
+    mov edi, [target_pointer]
     ;moving x location
     fld qword [varA]
-    fadd qword [target_pointer+TARGET_STRUCT_XPOS_OFFSET]
+    fadd qword [edi+TARGET_STRUCT_XPOS_OFFSET]
     fstp qword [varA]
     push dword BOARD_SIZE                     ; pushing board limits
     call wrap              ; now var A hold wrap x
-    mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_XPOS_OFFSET, varA    ;TODO see if this works
+    add esp, 4
+    mov_mem_to_mem_qwords edi+TARGET_STRUCT_XPOS_OFFSET, varA   
 
     ;moving y location
     fld qword [varA]
-    fadd qword [target_pointer+TARGET_STRUCT_YPOS_OFFSET]
+    fadd qword [edi+TARGET_STRUCT_YPOS_OFFSET]
     fstp qword [varA]
     push dword BOARD_SIZE                      ; pushing board limits
     call wrap              ; now var A hold wrap y
-    mov_mem_to_mem_qwords target_pointer+TARGET_STRUCT_YPOS_OFFSET, varA    ;TODO see if this works
-
+    add esp, 4
+    mov_mem_to_mem_qwords edi+TARGET_STRUCT_YPOS_OFFSET, varA   
+    popad
     func_end
 
 update_drone_deg: ;(drone * ) -> null, update drone deg
     func_start
+    pushad
     call generate_random_delta_deg  ;now varA hold delta deg
     mov ebx, [ebp+8]                ;ebx = drone *
     ffree
@@ -443,8 +440,9 @@ update_drone_deg: ;(drone * ) -> null, update drone deg
     fstp qword [varA]
     push dword MAX_DEGREE                      ; pushing board limits
     call wrap                             ; now var A hold wrap x
-    mov_mem_to_mem_qwords ebx+DRONE_STRUCT_HEADING_OFFSET, varA  ;TODO see if this works
-
+    add esp, 4
+    mov_mem_to_mem_qwords ebx+DRONE_STRUCT_HEADING_OFFSET, varA  
+    popad
     func_end
 
 move_drone:
@@ -452,29 +450,38 @@ move_drone:
     ;This func moves the drone's XY:
 
     func_start
-    mov_mem_to_mem_qwords currAngleDeg, currDrone+DRONE_STRUCT_HEADING_OFFSET
-    mov_mem_to_mem_qwords varA, currDrone+DRONE_STRUCT_SPEED_OFFSET
+    pushad
+    mov edi, [currDrone]
+    shl edi, 4
+    mov ecx, [DronesArrayPointer]
+    add ecx, edi
+    mov_mem_to_mem_qwords currAngleDeg, ecx+DRONE_STRUCT_HEADING_OFFSET
+    mov_mem_to_mem_qwords varA, ecx+DRONE_STRUCT_SPEED_OFFSET
     call calc_delta_x
-    ;TODO: convert curr_drone from index to actual pointer
+    
     ffree
     fld qword [varA] ; loading the delta
-    fld qword [currDrone+DRONE_STRUCT_XPOS_OFFSET]
+    fld qword [ecx+DRONE_STRUCT_XPOS_OFFSET]
     fadd
     fstp qword [varA]
-    push dword BOARD_SIZE ;TODO word?
+    push dword BOARD_SIZE 
     call wrap
     add esp, 4
-    mov_mem_to_mem_qwords currDrone+DRONE_STRUCT_XPOS_OFFSET, varA
+    mov_mem_to_mem_qwords ecx+DRONE_STRUCT_XPOS_OFFSET, varA
     call calc_delta_y
     ffree
     fld qword [varA] ; loading the delta
-    fld qword [currDrone+DRONE_STRUCT_YPOS_OFFSET]
+    fld qword [ecx+DRONE_STRUCT_YPOS_OFFSET]
     fadd
     fstp qword [varA]
-    push dword BOARD_SIZE ;TODO word?
+    push dword BOARD_SIZE 
     call wrap
     add esp, 4
-    mov_mem_to_mem_qwords currDrone+DRONE_STRUCT_YPOS_OFFSET, varA
+    mov_mem_to_mem_qwords ecx+DRONE_STRUCT_YPOS_OFFSET, varA
+    push ecx
+    call update_drone_deg
+    add esp, 4
+    popad
     func_end
 
 
@@ -503,6 +510,7 @@ wrap:
 mayDestroy:
     ; func(drone[currDrone], target[target_pointer])->bool[eax]
     func_start
+    pushad
 	mov eax,0                           ;eax will hold the result
 
 	; we need to calculate:
@@ -547,78 +555,86 @@ init_co_routines:
     add eax, [Nval]
     ; eax hold num of required cors - printer, scheder, target, N drones
     push eax
-    push 8 ; TODO - does the order matter?
+    push 8
     call calloc
     add esp, 8
     mov dword [cors], eax
+    mov edi, [cors] ; pointer to cors
     init_sched_cor:
-    mov dword [cors], run_schedueler
+    mov dword [edi], run_schedueler
     push 1
     push dword CO_STK_SIZE
     call calloc
     add esp, 8
-    mov dword [cors+4], eax
+    add eax, CO_STK_SIZE
+    mov dword [edi+4], eax
     mov [SPT], esp	                ;   save ESP value
-    mov esp, [cors+4]               ; get initial ESP value – pointer to COi stack
-    mov eax, [cors]                 ; get initial EIP value – pointer to COi function
+    mov esp, [edi+4]               ; get initial ESP value – pointer to COi stack
+    mov eax, [edi]                 ; get initial EIP value – pointer to COi function
     push eax                        ; push initial “return” address
     pushfd                          ; push flags
     pushad                          ; push registers
-    mov [cors+4], esp               ; save new SPi value
+    mov [edi+4], esp               ; save new SPi value
     mov esp, [SPT]                  ; restore ESP value
 
     init_target_cor:
-    mov dword [cors+8], run_target
+    mov edi, [cors] ; pointer to cors
+    mov dword [edi+8], run_target
     push 1
     push dword CO_STK_SIZE
     call calloc
     add esp, 8
-    mov dword [cors+12], eax
+    add eax, CO_STK_SIZE
+    mov dword [edi+12], eax
     mov [SPT], esp	               ; save ESP value
-    mov esp, [cors+12]               ; get initial ESP value – pointer to COi stack
-    mov eax, [cors+8]                 ;get initial EIP value – pointer to COi function
+    mov esp, [edi+12]               ; get initial ESP value – pointer to COi stack
+    mov eax, [edi+8]                 ;get initial EIP value – pointer to COi function
     push eax                         ; push initial “return” address
     pushfd                          ;push flags
     pushad                          ; push registers
-    mov [cors+12], esp               ; save new SPi value
+    mov [edi+12], esp               ; save new SPi value
     mov esp, [SPT]                  ;restore ESP value
 
     init_printer_cor:
-    mov dword [cors+16], run_printer
+    mov edi, [cors] ; pointer to cors
+    mov dword [edi+16], run_printer
     push 1
     push dword CO_STK_SIZE
     call calloc
     add esp, 8
-    mov dword [cors+20], eax
+    add eax, CO_STK_SIZE
+    mov dword [edi+20], eax
     mov [SPT], esp	               ; save ESP value
-    mov esp, [cors+20]               ; get initial ESP value – pointer to COi stack
-    mov eax, [cors+16]                 ;get initial EIP value – pointer to COi function
+    mov esp, [edi+20]               ; get initial ESP value – pointer to COi stack
+    mov eax, [edi+16]                 ;get initial EIP value – pointer to COi function
     push eax                         ; push initial “return” address
     pushfd                          ;push flags
     pushad                          ; push registers
-    mov [cors+20], esp               ; save new SPi value
+    mov [edi+20], esp               ; save new SPi value
     mov esp, [SPT]                  ;restore ESP value
 
     init_drones_cors:
     mov ebx, 3 ; our loop counter (cmp ebx with [N]+3)
     drones_cors_init_loop:
+    mov edi, [cors] ; pointer to cors
     mov esi, dword [Nval]
     add esi, 3
     cmp ebx, esi         ; if not working, move [N]+3 into register
     je end_drones_cors_init_loop
-    mov dword [cors+ebx*8], run_drone
+    mov dword [edi+ebx*8], run_drone
     push 1
     push dword CO_STK_SIZE
     call calloc
     add esp, 8
-    mov dword [cors+ebx*8+4], eax
+    add eax, CO_STK_SIZE
+    mov dword [edi+ebx*8+4], eax
     mov [SPT], esp	               ; save ESP value
-    mov esp, [cors+ebx*8+4]               ; get initial ESP value – pointer to COi stack
-    mov eax, [cors+ebx*8]                 ;get initial EIP value – pointer to COi function
+    mov esp, [edi+ebx*8+4]               ; get initial ESP value – pointer to COi stack
+    mov eax, [edi+ebx*8]                 ;get initial EIP value – pointer to COi function
     push eax                         ; push initial “return” address
     pushfd                          ;push flags
     pushad                          ; push registers
-    mov [cors+ebx*8+4], esp               ; save new SPi value
+    mov [edi+ebx*8+4], esp               ; save new SPi value
     mov esp, [SPT]                  ;restore ESP value
     inc ebx
     jmp drones_cors_init_loop
@@ -633,7 +649,6 @@ main:
     ; call scheduler?
     ;end_game? (free?)
     func_start
-    ;TODO: do we need space for this? sub     esp, 4
     mov     eax, [ebp+8]                         ; argc
     mov     ebx, [ebp+12]                        ; argv <N> <R> <K> <d> <seed>
     add     ebx, 4                               ; skip first arg
@@ -648,7 +663,7 @@ main:
     call init_co_routines
     mov [SPMAIN], esp
     mov dword [currDrone], 0			; Curr drone will hold the first drone ID
-    mov ebx, cors						; Ebx is pointer to scheduler function
+    mov ebx, [cors]						; Ebx is pointer to scheduler function
     jmp do_resume
 
     finish_main:

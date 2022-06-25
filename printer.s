@@ -16,12 +16,13 @@
     div ebx       ; edx = %1 mod %2
 %endmacro
 
-;%1 = pointer to float to print    (TODO check if %1 + 4 is valid command)
-%macro print_float_2d 1
+;%1 = pointer to float to print 
+%macro print_float_2d_precision 1
 	pushad
-    mov ebx, %1
-	push dword [ebx]    ;pushes 32 bits (MSB)
-    push dword [ebx+4]   ;pushes 32 bits (LSB)
+	fld qword [%1]
+    fstp qword [f_num]
+	push dword [f_num+4]  ;pushes 32 bits (MSB)
+    push dword [f_num]    ;pushes 32 bits (LSB)
 	push float_format
 	call printf
 	add esp, 12
@@ -76,7 +77,7 @@ section .data
     
 
 section .bss
-    
+	f_num:		resq 1
 section .text
     extern Nval
     extern printf
@@ -91,12 +92,12 @@ section .text
         _print_target:
             mov ebx, target_pointer
             mov ebx, [ebx]
-            print_float_2d ebx ;TODO, check if register is needed
+            print_float_2d_precision ebx
             print_comma
             mov ebx, target_pointer
             mov ebx, [ebx]
             add ebx, TARGET_STRUCT_YPOS_OFFSET
-            print_float_2d ebx
+            print_float_2d_precision ebx
             print_new_line
 
         xor ecx, ecx
@@ -107,36 +108,38 @@ section .text
             mov edi, ecx
             shl edi, 2
             add ebx, edi     ; ebx = drone[i] pointer
-            mov edi, ebx      ;curr drone *
+            mov edi, [ebx]      ;curr drone *
             inc ecx                                   ; i++
-            cmp byte[ebx+DRONE_STRUCT_ACTIVE_OFFSET], 0 ; drone.isAlive()
-            je _print_drones_loop
+            ;cmp byte[ebx+DRONE_STRUCT_ACTIVE_OFFSET], 0 ; drone.isAlive()
+            ;je _print_drones_loop
 
             print_decimal ecx                           ; drone print index starts at 1
             print_comma
+            print_comma
+            print_comma
             mov ebx, edi
             add ebx, DRONE_STRUCT_XPOS_OFFSET
-            print_float_2d ebx     ; TODO check if need qword or register
+            print_float_2d_precision ebx  
             print_comma
             mov ebx, edi
             add ebx, DRONE_STRUCT_YPOS_OFFSET
-            print_float_2d ebx
+            print_float_2d_precision ebx
             print_comma
             mov ebx, edi
             add ebx, DRONE_STRUCT_SPEED_OFFSET
-            print_float_2d ebx
+            print_float_2d_precision ebx
             print_comma
             mov ebx, edi
             add ebx, DRONE_STRUCT_HEADING_OFFSET
-            print_float_2d ebx
+            print_float_2d_precision ebx
             print_comma
             mov ebx, edi
             add ebx, DRONE_STRUCT_KILLS_OFFSET
-            print_decimal  ebx
+            print_decimal  dword[ebx]
             print_new_line
 
             jmp _print_drones_loop
 
         _return_to_printer:
-            mov ebx, cors     ; ebx = scheduler*
+            mov ebx, [cors]     ; ebx = scheduler*
             call resume

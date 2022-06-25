@@ -89,7 +89,9 @@ run_schedueler:
         modulu dword[curr_step], dword[Nval]    ;now edx hold curr_step%R
         mov dword[currDrone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
-        add ebx, dword[edx * 4]          ;now ebx points to curr drone
+        shl edx, 2
+        add ebx, edx        ;now ebx points to curr drone
+        mov ebx, [ebx]
         cmp byte[ebx + DRONE_STRUCT_ACTIVE_OFFSET], 1
         je _call_drone_cor
         jmp _loop_end
@@ -98,16 +100,18 @@ run_schedueler:
         _eliminate:
             xor ecx, ecx        ; index
             mov esi, 2147483647 ; min KILL VALUE
-            xor edx, edx        ;   curr min kill drone index
+            xor edx, edx        ; curr min kill drone index
 
 
             _eliminate_loop:
                 cmp ecx, dword[Nval]        ; while i<N
                 je _end_eliminate_loop
-                mov eax, [DronesArrayPointer]
+                mov eax, [DronesArrayPointer]   ; eax = start of pointer array
                 mov edi, ecx
                 shl edi, 2
-                add eax, edi             ;eax = curr drone*
+                add eax, edi             ; eax = DronesArrayPointer[ecx]
+                ;mov eax, [eax]           ; eax = start of curr drone struct
+
                 cmp byte[eax+DRONE_STRUCT_ACTIVE_OFFSET], byte 0         ;isAlive() ?
                 je _continue
                 cmp esi, dword[eax+DRONE_STRUCT_KILLS_OFFSET]        ; curr min > ? drone kills
@@ -119,33 +123,38 @@ run_schedueler:
                 jmp _eliminate_loop
 
             _end_eliminate_loop:
-                mov eax, [DronesArrayPointer]            
-                shl edx, 2                  ; drone pointer index * drone pointer size
-                add eax, edx             ;eax = loser drone drone*
+                mov eax, [DronesArrayPointer]   ; eax = start of pointer array
+                mov edi, edx
+                shl edi, 2
+                add eax, edi             ; eax = DronesArrayPointer[ecx]
+                ;mov eax, [eax]           ; eax = start of curr drone struct
                 mov byte[eax+DRONE_STRUCT_ACTIVE_OFFSET], 0         ;loser was eliminated
 
                 dec dword[num_of_drones_left]
                 cmp dword[num_of_drones_left], 1
                 je finish_game
-                ;TODO: print num of winner drone
-                ;TODO JUMP EQUALS END GAME (print board, return to main, free all cors)
                 inc dword [drones_eliminated_this_round]
                 cmp dword [drones_eliminated_this_round], 1
                 je _eliminate
 
             jmp _check_print
         _print_board:
-            mov ebx, dword cors+16         ; move pointer of printer coroutine to ebx
+            mov ebx, [cors]                 ; ebx = start of cors array
+            add ebx, 16                     ; move pointer of printer coroutine to ebx
             call resume                     ; resume printer
             jmp _check_move_target          ; board was printed
         _move_target:
-            mov ebx, dword cors+8         ; move target of printer coroutine to ebx
+            mov ebx, [cors]                 ; ebx = start of cors array
+            add ebx, 8          ; move target of printer coroutine to ebx
             call resume                     ; resume target
             jmp _check_drone_alive          ; target was moved
         _call_drone_cor:
             ;edx holds i%N
+            mov ebx, [cors]                 ; ebx = start of cors array
+            mov edx, [currDrone]
             add edx, 3                      ;   drones corourtines start at index 3
-            mov ebx, dword[cors + edx*8]         ; size of cors struct is 8, now ebx holds pointer to curr drone coroutine
+            shl edx, 3
+            add ebx, edx         ; size of cors struct is 8, now ebx holds pointer to curr drone coroutine
             call resume                     ; resume curr drone
         _loop_end:
             inc dword[curr_step]                 ; i++
@@ -157,7 +166,11 @@ finish_game:
     ;find winner
     mov ecx, 0                              ; loop counter
     search_winner_loop:
-        mov ebx, dword [DronesArrayPointer+4*ecx]
+        mov ebx, [DronesArrayPointer]
+        mov edx, ecx
+        shl edx, 2
+        add ebx, edx
+        mov ebx, [ebx]
         cmp byte [ebx+DRONE_STRUCT_ACTIVE_OFFSET], 1
         je end_search_winner_loop
         inc ecx
@@ -166,12 +179,10 @@ finish_game:
 
     end_search_winner_loop:
         ;now ecx is holding the numebr of the winner
-        push winner_format
         push ecx
+        push winner_format
         call printf
         add esp, 8
         jmp finish_main
     ; call main_end
-
-;TODO -> check if func start and func end are needed here, because resume and do resume take care of same things i think
 
