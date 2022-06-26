@@ -142,19 +142,19 @@ section .text
             ; push dword [eax+DRONE_STRUCT_XPOS_OFFSET+4]
 
             sub esp,8
-            fld qword [eax+DRONE_STRUCT_SPEED_OFFSET]
+            fild qword [eax+DRONE_STRUCT_SPEED_OFFSET]
             fstp qword [esp]
             
             sub esp,8
-            fld qword [eax+DRONE_STRUCT_HEADING_OFFSET]
+            fild qword [eax+DRONE_STRUCT_HEADING_OFFSET]
             fstp qword [esp]
 
             sub esp,8
-            fld qword [eax+DRONE_STRUCT_YPOS_OFFSET]
+            fild qword [eax+DRONE_STRUCT_YPOS_OFFSET]
             fstp qword [esp]
 
             sub esp,8
-            fld qword [eax+DRONE_STRUCT_XPOS_OFFSET]
+            fild qword [eax+DRONE_STRUCT_XPOS_OFFSET]
             fstp qword [esp]
 
             push ebx
