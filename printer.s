@@ -9,6 +9,24 @@
     ret
 %endmacro
 
+%macro printFloat 1
+    pushad
+    
+    finit
+    fld dword %1
+    sub esp, 8
+    fstp qword [esp]
+    ffree
+    
+    push dword floatFormat
+    call printf
+    add esp, 12
+    ; push dword [stdout]
+    ; call fflush
+    ; add esp, 4
+    popad
+%endmacro
+
 %macro modulu 2
     mov eax, [%1]         
     xor edx, edx             
@@ -140,6 +158,8 @@ section .text
             ; push dword [eax+DRONE_STRUCT_YPOS_OFFSET+4]
             ; push dword [eax+DRONE_STRUCT_XPOS_OFFSET]
             ; push dword [eax+DRONE_STRUCT_XPOS_OFFSET+4]
+
+            printFloat [eax + DRONE_STRUCT_XPOS_OFFSET]
 
             sub esp,8
             fild qword [eax+DRONE_STRUCT_SPEED_OFFSET]
