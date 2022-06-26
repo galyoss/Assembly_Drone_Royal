@@ -147,6 +147,7 @@ section .text
         push test_print
         call printf
         add esp, 4
+        break_here:
         call_next_cors dword [sched_co_index]      ;transfering control to scheduler after print
         
         push test_print
