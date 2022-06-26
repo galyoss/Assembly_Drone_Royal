@@ -127,14 +127,15 @@ run_schedueler:
         modulu curr_step, Tval    ;now edx hold curr_step%T
         my_print test1
         cmp edx, 0
-        my_print test6
         je _move_target
 
         _check_drone_alive:
         modulu curr_step, Nval    ;now edx hold curr_step%R
         mov dword[currDrone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
-        add ebx, dword[edx * 4]          ;now ebx points to curr drone
+        shl edx, 2
+        add ebx, edx          ;now ebx points to curr drone
+        shr edx, 2
         ;my_print test4
         cmp byte [ebx + DRONE_STRUCT_ACTIVE_OFFSET], 1
         je _call_drone_cor
