@@ -132,7 +132,7 @@ section .text
 
             push dword [num_of_drones_left]
 
-            push [dummy_line]
+            push dword [dummy_line]
             
             call printf
             add esp,8
