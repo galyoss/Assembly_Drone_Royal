@@ -133,7 +133,11 @@ run_schedueler:
             _eliminate_loop:
                 cmp ecx, dword[Nval]        ; while i<N
                 je _end_eliminate_loop
-                mov eax, dword[DronesArrayPointer + ecx*4]              ;eax = curr drone*
+                mov eax, dword [DronesArrayPointer]
+                ;shl ecx, 2
+                ;add eax, ecx
+                ;shr ecx, 2
+                mov eax, dword[eax+ecx*4]              ;eax = curr drone*
                 cmp byte[eax+DRONE_STRUCT_ACTIVE_OFFSET], 0         ;isAlive() ?
                 je _continue
                 cmp esi, dword[eax+DRONE_STRUCT_KILLS_OFFSET]        ; curr min > ? drone kills
