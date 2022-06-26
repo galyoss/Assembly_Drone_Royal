@@ -168,7 +168,7 @@ section .text
             printFloat [eax + DRONE_STRUCT_SPEED_OFFSET]
             my_print separator
             
-            push [eax+DRONE_STRUCT_KILLS_OFFSET]
+            push dword [eax+DRONE_STRUCT_KILLS_OFFSET]
             push int_format
             call printf
             add esp, 8
