@@ -130,15 +130,20 @@ section .text
             cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
             je dont_print_drone
 
-            push dword [num_of_drones_left]
-
             ;format line: index (of drone), float(x), float(y), float(angle), float(speed), int(points)
             push dword [eax+DRONE_STRUCT_KILLS_OFFSET]
-            push qword [eax+DRONE_STRUCT_SPEED_OFFSET]
-            
-
+            push dword [eax+DRONE_STRUCT_SPEED_OFFSET+4]
+            push dword [eax+DRONE_STRUCT_SPEED_OFFSET]
+            push dword [eax+DRONE_STRUCT_HEADING_OFFSET+4]
+            push dword [eax+DRONE_STRUCT_HEADING_OFFSET]
+            push dword [eax+DRONE_STRUCT_YPOS_OFFSET+4]
+            push dword [eax+DRONE_STRUCT_YPOS_OFFSET]
+            push dword [eax+DRONE_STRUCT_XPOS_OFFSET+4]
+            push dword [eax+DRONE_STRUCT_XPOS_OFFSET]
+            push ebx
+            push drone_info_line_format
             call printf
-            add esp,8
+            add esp, 44
 
             dont_print_drone:
             popad
