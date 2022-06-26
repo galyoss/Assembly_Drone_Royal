@@ -112,9 +112,6 @@ section .text
         my_print string_run_printer
         finit
         .inf_loop:
-        push test_print
-        call printf
-        add esp, 4
         mov ecx, [Nval]
         mov eax,dword [DronesArrayPointer]
         xor ebx,ebx
@@ -147,6 +144,12 @@ section .text
             jmp .printer_loop
         .end_printer_loop:
         
+        push test_print
+        call printf
+        add esp, 4
         call_next_cors dword [sched_co_index]      ;transfering control to scheduler after print
         
+        push test_print
+        call printf
+        add esp, 4
         jmp .inf_loop
