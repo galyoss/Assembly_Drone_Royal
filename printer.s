@@ -85,6 +85,7 @@ section	.rodata
     drone_info_line_format: db " %d, %.2f , %.2f , %.2f , %.2f , %b ",10,0 ;index, x, y, heading, speed, num of kills
     target_string_format: db "%.2f, %.2f", 10, 0                            ;x,y (for target)
     dummy_line: db "printing... %d", 10, 0
+    test_print: db "test", 10, 0
 
 
 section .data
@@ -111,7 +112,9 @@ section .text
         my_print string_run_printer
         finit
         .inf_loop:
-
+        push test_print
+        call printf
+        add esp, 4
         mov ecx, [Nval]
         mov eax,dword [DronesArrayPointer]
         xor ebx,ebx
