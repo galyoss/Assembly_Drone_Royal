@@ -127,6 +127,7 @@ run_schedueler:
         modulu curr_step, Tval    ;now edx hold curr_step%T
         my_print test1
         cmp edx, 0
+        my_print test6
         je _move_target
 
         _check_drone_alive:
