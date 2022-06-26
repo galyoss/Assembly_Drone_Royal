@@ -148,8 +148,9 @@ run_schedueler:
                 mov eax, dword[DronesArrayPointer + edx*4]           ;eax = loser drone*
                 mov byte[eax+DRONE_STRUCT_ACTIVE_OFFSET], 0         ;loser was eliminated
 
-                dec dword [num_of_drones_left]
                 cmp dword [num_of_drones_left], 1
+                jle _end_game
+                dec dword [num_of_drones_left]
                 ;TODO JUMP EQUALS END GAME (print board, return to main, free all cors)
                 inc dword [drones_eliminated_this_round]
                 cmp dword [drones_eliminated_this_round], 1
@@ -187,6 +188,12 @@ run_schedueler:
 
 func_end
 
+_end_game:
+    ; print end game
+    ; exit
+    mov eax, 1
+    mov ebx, 0
+    int 0x80
 ;TODO -> check if func start and func end are needed here, because resume and do resume take care of same things i think
 
 
