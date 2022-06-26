@@ -163,15 +163,15 @@ section .text
             add esp, 8
             pop eax
 
-            ; my_print separator
-            ; printFloat [eax + DRONE_STRUCT_XPOS_OFFSET]
-            ; my_print separator
-            ; printFloat [eax + DRONE_STRUCT_YPOS_OFFSET]
-            ; my_print separator
-            ; printFloat [eax + DRONE_STRUCT_HEADING_OFFSET]
-            ; my_print separator
-            ; printFloat [eax + DRONE_STRUCT_SPEED_OFFSET]
-            ; my_print separator
+            my_print separator
+            printFloat [eax + DRONE_STRUCT_XPOS_OFFSET]
+            my_print separator
+            printFloat [eax + DRONE_STRUCT_YPOS_OFFSET]
+            my_print separator
+            printFloat [eax + DRONE_STRUCT_HEADING_OFFSET]
+            my_print separator
+            printFloat [eax + DRONE_STRUCT_SPEED_OFFSET]
+            my_print separator
             
             push dword [eax+DRONE_STRUCT_KILLS_OFFSET]
             push int_format
