@@ -23,7 +23,6 @@
 %endmacro
 
 %macro call_next_cors 1
-            break_here:
             push ecx
             mov ecx,%1
             mov ebx, dword [cors]
@@ -148,6 +147,7 @@ section .text
         push test_print
         call printf
         add esp, 4
+            break_here:
         call_next_cors dword [sched_co_index]      ;transfering control to scheduler after print
         
         push test_print
