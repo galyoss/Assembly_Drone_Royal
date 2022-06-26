@@ -163,7 +163,7 @@ run_schedueler:
                 cmp dword [drones_eliminated_this_round], 1
                 je _eliminate
                 mov dword [drones_eliminated_this_round], 0
-                jmp _loop_end
+                jmp _check_print
 
         _print_board:
             push ecx
