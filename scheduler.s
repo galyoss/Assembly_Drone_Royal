@@ -149,12 +149,15 @@ run_schedueler:
                 jmp _eliminate_loop
 
             _end_eliminate_loop:
-                mov eax, dword[DronesArrayPointer + edx*4]           ;eax = loser drone*
+                mov eax, [DronesArrayPointer]
+                mov eax, dword[eax + edx*4]           ;eax = loser drone*
                 mov byte[eax+DRONE_STRUCT_ACTIVE_OFFSET], 0         ;loser was eliminated
 
                 cmp dword [num_of_drones_left], 1
                 jle _end_game
                 dec dword [num_of_drones_left]
+                cmp dword [num_of_drones_left], 1
+                jle _end_game
                 ;TODO JUMP EQUALS END GAME (print board, return to main, free all cors)
                 inc dword [drones_eliminated_this_round]
                 cmp dword [drones_eliminated_this_round], 1
