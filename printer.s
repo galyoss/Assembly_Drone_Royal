@@ -111,14 +111,14 @@ section .text
         finit
         my_print string_run_printer
         finit
-        .inf_loop:
+        inf_loop:
         mov ecx, [Nval]
         mov eax,dword [DronesArrayPointer]
         xor ebx,ebx
         
-        .printer_loop:
+        printer_loop:
             cmp ebx,ecx
-            je .end_printer_loop
+            je end_printer_loop
 
             pushad
             mov eax, [DronesArrayPointer]
@@ -128,7 +128,7 @@ section .text
             mov eax, [eax]
 
             cmp byte [eax+DRONE_STRUCT_ACTIVE_OFFSET], 0
-            je .dont_print_drone
+            je dont_print_drone
 
             push dword [num_of_drones_left]
 
@@ -137,20 +137,19 @@ section .text
             call printf
             add esp,8
 
-            .dont_print_drone:
+            dont_print_drone:
             popad
             
             inc ebx
-            jmp .printer_loop
-        .end_printer_loop:
+            jmp printer_loop
+        end_printer_loop:
         
         push test_print
         call printf
         add esp, 4
-            break_here:
         call_next_cors dword [sched_co_index]      ;transfering control to scheduler after print
         
         push test_print
         call printf
         add esp, 4
-        jmp .inf_loop
+        jmp inf_loop
