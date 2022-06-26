@@ -153,8 +153,8 @@ run_schedueler:
                 mov eax, dword[eax + edx*4]           ;eax = loser drone*
                 mov byte[eax+DRONE_STRUCT_ACTIVE_OFFSET], 0         ;loser was eliminated
 
-                cmp dword [num_of_drones_left], 1
-                jle _end_game
+                ; cmp dword [num_of_drones_left], 1
+                ; jle _end_game
                 dec dword [num_of_drones_left]
                 cmp dword [num_of_drones_left], 1
                 jle _end_game
