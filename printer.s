@@ -35,9 +35,11 @@
 %endmacro
 
 %macro my_print 1
+    push eax
     push %1
     call printf
     add esp, 4
+    pop eax
 %endmacro
 
 %macro call_next_cors 1
@@ -154,10 +156,12 @@ section .text
             ;format line: index (of drone), float(x), float(y), float(angle), float(speed), int(points)
             
             ;print the index
+            push eax
             push ebx
             push int_format
             call printf
             add esp, 8
+            pop eax
 
             ; my_print separator
             ; printFloat [eax + DRONE_STRUCT_XPOS_OFFSET]
