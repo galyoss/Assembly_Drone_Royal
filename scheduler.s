@@ -112,20 +112,20 @@ run_schedueler:
         add esp, 4
         ;checking if elimination is next
         modulu curr_step, Rval    ;now edx hold curr_step%R
-        my_print test1
+        ;my_print test1
         cmp edx, 0
         je _eliminate
 
         ;checking if print is next
         _check_print: 
         modulu curr_step, Kval    ;now edx hold curr_step%K
-        my_print test2
+        ;my_print test2
         cmp edx, 0
         je _print_board
 
         _check_move_target:
         modulu curr_step, Tval    ;now edx hold curr_step%T
-        my_print test3
+        my_print test1
         cmp edx, 0
         je _move_target
 
@@ -134,7 +134,7 @@ run_schedueler:
         mov dword[currDrone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
         add ebx, dword[edx * 4]          ;now ebx points to curr drone
-        my_print test4
+        ;my_print test4
         cmp byte [ebx + DRONE_STRUCT_ACTIVE_OFFSET], 1
         je _call_drone_cor
         jmp _loop_end
@@ -197,7 +197,9 @@ run_schedueler:
             shl ecx, 3
             add ebx, ecx                    ;מow ebx points to target co
             pop ecx
+            my_print test2
             call resume                     ; resume printer
+            my_print test3
             jmp _check_drone_alive          ; target was moved
         _call_drone_cor:
             ;edx holds i%N
