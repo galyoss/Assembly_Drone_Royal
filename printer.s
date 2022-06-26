@@ -131,15 +131,32 @@ section .text
             je dont_print_drone
 
             ;format line: index (of drone), float(x), float(y), float(angle), float(speed), int(points)
-            push dword [eax+DRONE_STRUCT_KILLS_OFFSET]
-            push byte [eax+DRONE_STRUCT_SPEED_OFFSET]
-            push dword [eax+DRONE_STRUCT_SPEED_OFFSET+4]
-            push dword [eax+DRONE_STRUCT_HEADING_OFFSET]
-            push dword [eax+DRONE_STRUCT_HEADING_OFFSET+4]
-            push dword [eax+DRONE_STRUCT_YPOS_OFFSET]
-            push dword [eax+DRONE_STRUCT_YPOS_OFFSET+4]
-            push dword [eax+DRONE_STRUCT_XPOS_OFFSET]
-            push dword [eax+DRONE_STRUCT_XPOS_OFFSET+4]
+             push dword [eax+DRONE_STRUCT_KILLS_OFFSET]
+            ; push dword [eax+DRONE_STRUCT_SPEED_OFFSET]
+            ; push dword [eax+DRONE_STRUCT_SPEED_OFFSET+4]
+            ; push dword [eax+DRONE_STRUCT_HEADING_OFFSET]
+            ; push dword [eax+DRONE_STRUCT_HEADING_OFFSET+4]
+            ; push dword [eax+DRONE_STRUCT_YPOS_OFFSET]
+            ; push dword [eax+DRONE_STRUCT_YPOS_OFFSET+4]
+            ; push dword [eax+DRONE_STRUCT_XPOS_OFFSET]
+            ; push dword [eax+DRONE_STRUCT_XPOS_OFFSET+4]
+
+            sub esp,8
+            fld qword [eax+DRONE_STRUCT_SPEED_OFFSET]
+            fstp qword [esp]
+            
+            sub esp,8
+            fld qword [eax+DRONE_STRUCT_HEADING_OFFSET]
+            fstp qword [esp]
+
+            sub esp,8
+            fld qword [eax+DRONE_STRUCT_YPOS_OFFSET]
+            fstp qword [esp]
+
+            sub esp,8
+            fld qword [eax+DRONE_STRUCT_XPOS_OFFSET]
+            fstp qword [esp]
+
             push ebx
             push drone_info_line_format
             call printf
