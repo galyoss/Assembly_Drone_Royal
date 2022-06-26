@@ -82,7 +82,7 @@ section	.rodata
     MAX_DELTA_DEG_RANGE: equ 120
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
-    drone_info_line_format: db " %d, %.2f , %.2f , %.2f , %.2f , %b ",10,0 ;index, x, y, heading, speed, num of kills
+    drone_info_line_format: db " %d, %.2f , %.2f , %.2f , %.2f",10,0 ;index, x, y, heading, speed, num of kills
     target_string_format: db "%.2f, %.2f", 10, 0                            ;x,y (for target)
     dummy_line: db "printing... %d", 10, 0
     test_print: db "test", 10, 0
@@ -132,8 +132,11 @@ section .text
 
             push dword [num_of_drones_left]
 
-            push dummy_line
+            ;format line: index (of drone), float(x), float(y), float(angle), float(speed), int(points)
+            push dword [eax+DRONE_STRUCT_KILLS_OFFSET]
+            push qword [eax+DRONE_STRUCT_SPEED_OFFSET]
             
+
             call printf
             add esp,8
 
