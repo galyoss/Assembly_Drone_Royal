@@ -97,6 +97,7 @@ section	.rodata
     string_run_printer: db "running printer", 10, 0
     string_printing_target: db "printing target", 10, 0
     string_printing_drones: db "printint drones", 10, 0
+    floatFormat: db "%.2f", 0
     MAX_DELTA_DEG_RANGE: equ 120
     MAX_DELTA_POS_RANGE: equ 10
     scaled_rnd_format: db "Scaled rnd with limit of %d, resuly is %d", 10, 0
