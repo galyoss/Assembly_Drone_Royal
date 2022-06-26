@@ -105,6 +105,9 @@ section	.rodata
     target_string_format: db "%.2f, %.2f", 10, 0                            ;x,y (for target)
     dummy_line: db "printing... %d", 10, 0
     test_print: db "test", 10, 0
+    newLine: db 10, 0 ; '\n'
+    separator: db "," , 0
+    int_format: db "%d", 0
 
 
 section .data
@@ -127,7 +130,6 @@ section .text
 
 
     run_printer:
-        finit
         my_print string_run_printer
         finit
         inf_loop:
@@ -150,38 +152,28 @@ section .text
             je dont_print_drone
 
             ;format line: index (of drone), float(x), float(y), float(angle), float(speed), int(points)
-             push dword [eax+DRONE_STRUCT_KILLS_OFFSET]
-            ; push dword [eax+DRONE_STRUCT_SPEED_OFFSET]
-            ; push dword [eax+DRONE_STRUCT_SPEED_OFFSET+4]
-            ; push dword [eax+DRONE_STRUCT_HEADING_OFFSET]
-            ; push dword [eax+DRONE_STRUCT_HEADING_OFFSET+4]
-            ; push dword [eax+DRONE_STRUCT_YPOS_OFFSET]
-            ; push dword [eax+DRONE_STRUCT_YPOS_OFFSET+4]
-            ; push dword [eax+DRONE_STRUCT_XPOS_OFFSET]
-            ; push dword [eax+DRONE_STRUCT_XPOS_OFFSET+4]
+            
+            ;print the index
+            push ebx
+            push int_format
+            call printf
+            add esp, 8
 
             printFloat [eax + DRONE_STRUCT_XPOS_OFFSET]
-
-            sub esp,8
-            fild qword [eax+DRONE_STRUCT_SPEED_OFFSET]
-            fstp qword [esp]
+            my_print seperator
+            printFloat [eax + DRONE_STRUCT_YPOS_OFFSET]
+            my_print seperator
+            printFloat [eax + DRONE_STRUCT_HEADING_OFFSET]
+            my_print seperator
+            printFloat [eax + DRONE_STRUCT_SPEED_OFFSET]
+            my_print seperator
             
-            sub esp,8
-            fild qword [eax+DRONE_STRUCT_HEADING_OFFSET]
-            fstp qword [esp]
-
-            sub esp,8
-            fild qword [eax+DRONE_STRUCT_YPOS_OFFSET]
-            fstp qword [esp]
-
-            sub esp,8
-            fild qword [eax+DRONE_STRUCT_XPOS_OFFSET]
-            fstp qword [esp]
-
-            push ebx
-            push drone_info_line_format
+            push [eax+DRONE_STRUCT_KILLS_OFFSET]
+            push int_format
             call printf
-            add esp, 44
+            add esp, 8
+
+            my_print newLine
 
             dont_print_drone:
             popad
