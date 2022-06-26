@@ -191,6 +191,7 @@ run_schedueler:
             call resume                     ; resume printer
             jmp _check_move_target          ; board was printed
         _move_target:
+            my_print test4
             push ecx
             mov ebx, [cors]
             mov ecx, [target_co_index]
