@@ -23,6 +23,7 @@
 %endmacro
 
 %macro call_next_cors 1
+            break_here:
             push ecx
             mov ecx,%1
             mov ebx, dword [cors]
