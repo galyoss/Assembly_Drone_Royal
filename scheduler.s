@@ -17,8 +17,20 @@
     div ebx       ; edx = %1 mod %2
 %endmacro
 
+%macro my_print 1
+    push %1
+    call printf
+    add esp, 4
+%endmacro
+
 section	.rodata
-string_format: db "%s", 10, 0			
+string_format: db "%s", 10, 0	
+test1: db "test1", 10, 0		
+test2: db "test2", 10, 0		
+test3: db "test3", 10, 0		
+test4: db "test4", 10, 0		
+test5: db "test5", 10, 0		
+test6: db "test6", 10, 0			
 	decimal_format: db "%d", 0  			
 	float_format: db "%.2f", 0 			    ;2digit precision
     new_line_format: db 10, 0
@@ -100,17 +112,20 @@ run_schedueler:
         add esp, 4
         ;checking if elimination is next
         modulu curr_step, Rval    ;now edx hold curr_step%R
+        my_print test1
         cmp edx, 0
         je _eliminate
 
         ;checking if print is next
         _check_print: 
         modulu curr_step, Kval    ;now edx hold curr_step%K
+        my_print test2
         cmp edx, 0
         je _print_board
 
         _check_move_target:
         modulu curr_step, Tval    ;now edx hold curr_step%T
+        my_print test3
         cmp edx, 0
         je _move_target
 
@@ -119,6 +134,7 @@ run_schedueler:
         mov dword[currDrone], edx           ;saving curr_drone index for later use
         mov ebx, dword[DronesArrayPointer]
         add ebx, dword[edx * 4]          ;now ebx points to curr drone
+        my_print test4
         cmp byte [ebx + DRONE_STRUCT_ACTIVE_OFFSET], 1
         je _call_drone_cor
         jmp _loop_end
